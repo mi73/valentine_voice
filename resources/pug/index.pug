@@ -1,0 +1,34 @@
+extends modules/_layout
+
+block content
+
+  section.loading
+    h2 Taste your love
+    .loading__gauge
+      p Loading...
+      progress(value="0" max="100")
+
+  section.top(style='display: none')
+    .logo
+    h2 Taste your love
+    .top__start
+      a.top__startButton start
+      p.top__terms 利用規約に同意して始める
+    .top__footer
+      .logo
+
+  section.introduction
+    h3 世界でたったひとつの愛を味わおう。
+    p 二人の愛は世界でたったひとつ。
+    p けれど、愛は目に見えず、<br>手で触れられないもの。
+    p そんな二人の愛も、<br>味わいにして確かめてみましょう。
+
+    .introduction__button
+      a next
+  section.recording1
+  section.recording2
+  section.generating
+  section.result
+  .terms
+  .campaign
+

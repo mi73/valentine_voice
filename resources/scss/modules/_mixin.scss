@@ -1,0 +1,93 @@
+@charset "utf-8";
+// ===================================================================
+// mixin 命名規則いろいろ
+// ===================================================================
+
+$elementSeparator: '__';
+$modifierSeparator: '--';
+
+@function containsModifier($selector) {
+  $selector: selectorToString($selector);
+  @if str-index($selector, $modifierSeparator) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+
+@function selectorToString($selector) {
+  $selector: inspect($selector); //cast to string
+  $selector: str-slice($selector, 2, -2); //remove brackets
+  @return $selector;
+}
+
+@function getBlock($selector) {
+  $selector: selectorToString($selector);
+  $modifierStart: str-index($selector, $modifierSeparator) - 1;
+  @return str-slice($selector, 0, $modifierStart);
+}
+
+@mixin block($block) {
+  .#{$block} {
+    @content;
+  }
+}
+
+@mixin element($element) {
+  $selector: &;
+  @if containsModifier($selector) {
+    $block: getBlock($selector);
+    @at-root {
+      #{$selector} {
+        #{$block+$elementSeparator+$element} {
+          @content;
+        }
+      }
+    }
+  } @else {
+    @at-root {
+      #{$selector+$elementSeparator+$element} {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin modifier($modifier) {
+  @at-root {
+    #{&}#{$modifierSeparator+$modifier} {
+      @content;
+    }
+  }
+}
+
+@mixin retina-sprite-image($sprite) {
+  $sprite-image: nth($sprite, 9);
+  background-image: url(#{$sprite-image});
+}
+
+@mixin retina-sprite-width($sprite) {
+  width: nth($sprite, 5)/2;
+}
+
+@mixin retina-sprite-height($sprite) {
+  height: nth($sprite, 6)/2;
+}
+
+@mixin retina-sprite-position($sprite) {
+  $sprite-offset-x: nth($sprite, 3)/2;
+  $sprite-offset-y: nth($sprite, 4)/2;
+  background-position: $sprite-offset-x $sprite-offset-y;
+}
+
+@mixin retina-sprite-size($sprite) {
+  background-size: nth($sprite, 7) nth($sprite, 8);
+}
+
+@mixin retina-sprite($sprite) {
+  //@include retina-sprite-image($sprite);
+  @include sprite-position($sprite);
+  @include sprite-width($sprite);
+  @include sprite-height($sprite);
+  @include retina-sprite-size($sprite);
+}
