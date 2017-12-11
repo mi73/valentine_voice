@@ -6,7 +6,9 @@ export default class Result extends events {
   }
 
   initialize() {
+  }
 
+  show() {
   }
 
   reset() {

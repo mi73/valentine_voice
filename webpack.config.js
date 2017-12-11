@@ -2,7 +2,7 @@ var CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
 var UglifyJsPlugin = require("webpack/lib/optimize/UglifyJsPlugin");
 
 var JS_SRC = __dirname + '/resources/js';
-var JS_DEST = __dirname + '/build/js';
+var JS_DEST = __dirname + '/docs/js';
 
 console.log('JS_SRC', JS_SRC);
 

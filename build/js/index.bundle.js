@@ -28,6 +28,10 @@ var _introduction = __webpack_require__(536);
 
 var _introduction2 = _interopRequireDefault(_introduction);
 
+var _recording = __webpack_require__(537);
+
+var _recording2 = _interopRequireDefault(_recording);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -42,9 +46,10 @@ var Index = function () {
     this.loading = new _loading2.default('.loading');
     this.top = new _top2.default('.top');
     this.introduction = new _introduction2.default('.introduction');
+    this.recording1 = new _recording2.default('.recording1');
 
-    //this.loading.hide();
-    //this.introduction.show();
+    this.loading.hide();
+    this.recording1.show();
 
     window.addEventListener('load', function () {});
 
@@ -62,6 +67,10 @@ var Index = function () {
 
       this.top.on('hidden', function () {
         _this.introduction.show();
+      });
+
+      this.introduction.on('hidden', function () {
+        _this.recording1.show();
       });
     }
   }]);
@@ -740,6 +749,131 @@ var Introduction = function (_events) {
 }(_events3.default);
 
 exports.default = Introduction;
+
+/***/ }),
+
+/***/ 537:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _events2 = __webpack_require__(534);
+
+var _events3 = _interopRequireDefault(_events2);
+
+var _velocityAnimate = __webpack_require__(418);
+
+var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Recording = function (_events) {
+  _inherits(Recording, _events);
+
+  function Recording(selector) {
+    _classCallCheck(this, Recording);
+
+    var _this = _possibleConstructorReturn(this, (Recording.__proto__ || Object.getPrototypeOf(Recording)).call(this));
+
+    _this.$ = document.querySelector(selector);
+    _this.$p = _this.$.querySelector('p');
+    _this.$a = _this.$.querySelector('a');
+
+    _this.bind();
+    return _this;
+  }
+
+  _createClass(Recording, [{
+    key: 'initialize',
+    value: function initialize() {}
+  }, {
+    key: 'show',
+    value: function show() {
+      (0, _velocityAnimate2.default)(this.$, {
+        opacity: [1, 0]
+      }, {
+        queue: false,
+        display: 'block',
+        duration: 800
+      });
+    }
+  }, {
+    key: 'bind',
+    value: function bind() {
+      var _this2 = this;
+
+      this.$a.addEventListener('click', function (e) {
+        _this2.record();
+      });
+    }
+  }, {
+    key: 'record',
+    value: function record() {
+      var _this3 = this;
+
+      console.log('record');
+
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      this.audioContext = new AudioContext();
+      this.sampleRate = this.audioContext.sampleRate;
+
+      this.filter = this.audioContext.createBiquadFilter();
+      this.filter.type = 0;
+      this.filter.frequency.value = 20000;
+      this.bufsize = 1024;
+      this.data = new Float32Array(this.bufsize);
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = this.bufsize;
+      this.analyser.smoothingTimeContant = 0.9;
+
+      this.recorder = new Recorder(this.filter, { workerPath: 'js/recorderjs/recorderWorker.js' });
+
+      // setInterval(() => {
+      //   this.drawGraph();
+      // }, 1000 / 60);
+      setTimeout(function () {
+        _this3.drawGraph();
+      }, 3000);
+
+      navigator.getUserMedia({ video: false, audio: true }, function (stream) {
+        console.log("stream" + stream);
+        _this3.input = _this3.audioContext.createMediaStreamSource(stream);
+        //input.connect(analyser);
+        _this3.input.connect(_this3.filter);
+        _this3.filter.connect(_this3.analyser);
+        _this3.analyser.connect(_this3.audioContext.destination);
+        _this3.recorder && _this3.recorder.record();
+      }, function (e) {
+        console.log("No live audio input in this browser: " + e);
+      });
+    }
+  }, {
+    key: 'drawGraph',
+    value: function drawGraph() {
+      console.log(this.data);
+    }
+  }, {
+    key: 'reset',
+    value: function reset() {}
+  }]);
+
+  return Recording;
+}(_events3.default);
+
+exports.default = Recording;
 
 /***/ })
 

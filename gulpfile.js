@@ -18,7 +18,7 @@ gulp.task('sass', function () {
       autoprefixer: {"browsers": ["last 4 versions", 'ie 11', "Android 2.3"]},
       minifier: !util.env.d
     }))
-    .pipe(gulp.dest('./build/css/'));
+    .pipe(gulp.dest('./docs/css/'));
 });
 
 gulp.task('sass_sp', function () {
@@ -30,7 +30,7 @@ gulp.task('sass_sp', function () {
       autoprefixer: {"browsers": ["last 4 versions", 'ie 10', "Android 2.3"]},
       minifier: !util.env.d
     }))
-    .pipe(gulp.dest('./build/sp/css/'));
+    .pipe(gulp.dest('./docs/sp/css/'));
 });
 
 gulp.task('pug', function (){
@@ -40,7 +40,7 @@ gulp.task('pug', function (){
      ])
      .pipe(plumber())
      .pipe(pug({pretty: util.env.d}))
-     .pipe(gulp.dest('./build/'));
+     .pipe(gulp.dest('./docs/'));
 });
 
 gulp.task('pug_sp', function (){
@@ -50,7 +50,7 @@ gulp.task('pug_sp', function (){
      ])
      .pipe(plumber())
      .pipe(pug({pretty: util.env.d}))
-     .pipe(gulp.dest('./build/sp/'));
+     .pipe(gulp.dest('./docs/sp/'));
 });
 
 gulp.task('watch', function () {
@@ -66,13 +66,13 @@ gulp.task('server', function() {
   browserSync.init({
     port: 3000,
     server: {
-      baseDir: "./build"
+      baseDir: "./docs"
     }
   });
 
-  gulp.watch('./build/**/*.html', ['serverReload']);
-  gulp.watch('./build/**/*.css', ['serverReload']);
-  gulp.watch('./build/**/*.js', ['serverReload']);
+  gulp.watch('./docs/**/*.html', ['serverReload']);
+  gulp.watch('./docs/**/*.css', ['serverReload']);
+  gulp.watch('./docs/**/*.js', ['serverReload']);
 });
 
 gulp.task('serverReload', function() {
