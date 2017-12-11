@@ -558,7 +558,7 @@ var Recording = function (_events) {
         //input.connect(analyser);
         _this3.input.connect(_this3.filter);
         _this3.filter.connect(_this3.analyser);
-        _this3.analyser.connect(_this3.audioContext.destination);
+        //this.analyser.connect(this.audioContext.destination);
         //this.recorder && this.recorder.record();
       }, function (e) {
         console.log("No live audio input in this browser: " + e);

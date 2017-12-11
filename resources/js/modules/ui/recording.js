@@ -77,7 +77,7 @@ export default class Recording extends events {
       //input.connect(analyser);
       this.input.connect(this.filter);
       this.filter.connect(this.analyser);
-      this.analyser.connect(this.audioContext.destination);
+      //this.analyser.connect(this.audioContext.destination);
       //this.recorder && this.recorder.record();
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
