@@ -91,6 +91,8 @@ export default class Recording extends events {
       this.input.connect(this.analyser2);
       //this.analyser.connect(this.audioContext.destination);
       //this.recorder && this.recorder.record();
+
+      console.log(this.stream.getAudioTracks()[0]);
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
     });
@@ -145,7 +147,7 @@ export default class Recording extends events {
 
 
   drawGraph() {
-    console.log(this.data2);
+    //console.log(this.data2);
 
     this.analyze();
 

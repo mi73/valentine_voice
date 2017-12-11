@@ -393,6 +393,13 @@ var Introduction = function (_events) {
         display: 'block',
         duration: 800
       });
+
+      navigator.getUserMedia({ video: false, audio: true }, function (stream) {
+        console.log("stream" + stream);
+        console.log(stream.getAudioTracks()[0]);
+      }, function (e) {
+        console.log("No live audio input in this browser: " + e);
+      });
     }
   }, {
     key: 'hide',
@@ -572,6 +579,8 @@ var Recording = function (_events) {
         _this3.input.connect(_this3.analyser2);
         //this.analyser.connect(this.audioContext.destination);
         //this.recorder && this.recorder.record();
+
+        console.log(_this3.stream.getAudioTracks()[0]);
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
       });
@@ -628,7 +637,7 @@ var Recording = function (_events) {
   }, {
     key: 'drawGraph',
     value: function drawGraph() {
-      console.log(this.data2);
+      //console.log(this.data2);
 
       this.analyze();
 
