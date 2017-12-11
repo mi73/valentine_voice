@@ -47,9 +47,9 @@ var Index = function () {
     this.top = new _top2.default('.top');
     this.introduction = new _introduction2.default('.introduction');
     this.recording1 = new _recording2.default('.recording1');
-
-    this.loading.hide();
-    this.recording1.show();
+    //
+    // this.loading.hide();
+    // this.recording1.show();
 
     window.addEventListener('load', function () {});
 
