@@ -691,7 +691,8 @@ var Recording = function (_events) {
       var averageLength = this.averages.length;
       for (var _i3 = 0; _i3 < averageLength; ++_i3) {
         var _y3 = 128 + (this.averages[_i3] + 48.16) * 2.56;
-        this.context.lineTo(_i3 * 512 / averageLength, 256 - _y3);
+        //this.context.lineTo(i * 512 / averageLength, 256 - y);
+        this.context.lineTo(_i3 * 512 / averageLength, 128 + this.averages[_i3] * 5124);
       }
       this.context.stroke();
     }
@@ -699,8 +700,7 @@ var Recording = function (_events) {
     key: 'analyze',
     value: function analyze() {
       this.analyser.getFloatFrequencyData(this.data);
-      this.analyser2.getFloatFrequencyData(this.data2);
-      //this.analyser.getFloatTimeDomainData(this.data);
+      this.analyser2.getFloatTimeDomainData(this.data2);
     }
   }, {
     key: 'reset',

@@ -203,15 +203,15 @@ export default class Recording extends events {
     const averageLength = this.averages.length;
     for (let i = 0; i < averageLength; ++i) {
       let y = 128 + (this.averages[i] + 48.16) * 2.56;
-      this.context.lineTo(i * 512 / averageLength, 256 - y);
+      //this.context.lineTo(i * 512 / averageLength, 256 - y);
+      this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
     }
     this.context.stroke();
   }
 
   analyze() {
     this.analyser.getFloatFrequencyData(this.data);
-    this.analyser2.getFloatFrequencyData(this.data2);
-    //this.analyser.getFloatTimeDomainData(this.data);
+    this.analyser2.getFloatTimeDomainData(this.data2);
   }
 
 
