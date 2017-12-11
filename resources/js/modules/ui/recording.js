@@ -51,12 +51,12 @@ export default class Recording extends events {
 
     this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
 
-    // setInterval(() => {
-    //   this.drawGraph();
-    // }, 1000 / 60);
-    setTimeout(() => {
+    setInterval(() => {
       this.drawGraph();
-    }, 3000);
+    }, 1000 / 4);
+    // setTimeout(() => {
+    //   this.drawGraph();
+    // }, 3000);
 
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
       console.log("stream" + stream);

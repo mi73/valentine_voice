@@ -532,12 +532,12 @@ var Recording = function (_events) {
 
       this.recorder = new Recorder(this.filter, { workerPath: 'js/recorderjs/recorderWorker.js' });
 
-      // setInterval(() => {
-      //   this.drawGraph();
-      // }, 1000 / 60);
-      setTimeout(function () {
+      setInterval(function () {
         _this3.drawGraph();
-      }, 3000);
+      }, 1000 / 4);
+      // setTimeout(() => {
+      //   this.drawGraph();
+      // }, 3000);
 
       navigator.getUserMedia({ video: false, audio: true }, function (stream) {
         console.log("stream" + stream);
