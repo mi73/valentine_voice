@@ -533,14 +533,23 @@ var Recording = function (_events) {
       this.audioContext = new AudioContext();
       this.sampleRate = this.audioContext.sampleRate;
 
-      this.filter = this.audioContext.createBiquadFilter();
-      this.filter.type = 0;
-      this.filter.frequency.value = 20000;
+      // this.filter = this.audioContext.createBiquadFilter();
+      // this.filter.type = 0;
+      // this.filter.frequency.value = 20000;
       this.bufsize = 1024;
+
       this.data = new Float32Array(this.bufsize);
+      this.data2 = new Float32Array(this.bufsize);
+
+      this.datum = [];
+
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0.9;
+      this.analyser.smoothingTimeContant = 0;
+
+      this.analyser2 = this.audioContext.createAnalyser();
+      this.analyser2.fftSize = 32;
+      this.analyser2.smoothingTimeContant = 0;
 
       //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
 
@@ -555,9 +564,12 @@ var Recording = function (_events) {
         console.log("stream" + stream);
         _this3.stream = stream;
         _this3.input = _this3.audioContext.createMediaStreamSource(stream);
-        //input.connect(analyser);
-        _this3.input.connect(_this3.filter);
-        _this3.filter.connect(_this3.analyser);
+
+        // this.input.connect(this.filter);
+        // this.filter.connect(this.analyser);
+
+        _this3.input.connect(_this3.analyser);
+        _this3.input.connect(_this3.analyser2);
         //this.analyser.connect(this.audioContext.destination);
         //this.recorder && this.recorder.record();
       }, function (e) {
@@ -616,38 +628,52 @@ var Recording = function (_events) {
   }, {
     key: 'drawGraph',
     value: function drawGraph() {
-      //console.log(this.data);
+      console.log(this.data2);
 
       this.analyze();
 
+      var width = 512;
+
+      if (this.isRecording) {
+        this.datum.push(this.data.subarray(0, 512));
+      }
+
       this.context.fillStyle = "#000000";
       this.context.fillRect(0, 0, 512, 256);
-      this.context.fillStyle = "#009900";
 
+      this.context.fillStyle = "#009900aa";
       for (var i = 0; i < 512; ++i) {
-        var f = this.audioContext.sampleRate * i / 1024;
         var y = 128 + (this.data[i] + 48.16) * 2.56;
         this.context.fillRect(i, 256 - y, 1, y);
       }
 
-      this.context.fillStyle = "#ff8844";
-      for (var d = -50; d < 50; d += 10) {
-        var _y = 128 - d * 256 / 100 | 0;
-        this.context.fillRect(20, _y, 512, 1);
-        this.context.fillText(d + "dB", 5, _y);
+      this.context.fillStyle = "#990000aa";
+      for (var _i = 0; _i < 32; ++_i) {
+        var _y = 128 + (this.data2[_i] + 48.16) * 2.56;
+        this.context.fillRect(_i * 32, 256 - _y, 512 / 32, _y);
       }
 
+      // GRID
+      this.context.fillStyle = "#ff8844";
+      for (var d = -50; d < 50; d += 10) {
+        var _y2 = 128 - d * 256 / 100 | 0;
+        this.context.fillRect(20, _y2, 512, 1);
+        this.context.fillText(d + "dB", 5, _y2);
+      }
+
+      // Hz
       this.context.fillRect(20, 128, 512, 1);
-      for (var _f = 2000; _f < this.audioContext.sampleRate / 2; _f += 2000) {
-        var x = _f * 1024 / this.audioContext.sampleRate | 0;
+      for (var f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
+        var x = f * 1024 / this.audioContext.sampleRate | 0;
         this.context.fillRect(x, 0, 1, 245);
-        this.context.fillText(_f + "Hz", x - 10, 255);
+        this.context.fillText(f + "Hz", x - 10, 255);
       }
     }
   }, {
     key: 'analyze',
     value: function analyze() {
       this.analyser.getFloatFrequencyData(this.data);
+      this.analyser2.getFloatFrequencyData(this.data2);
       //this.analyser.getFloatTimeDomainData(this.data);
     }
   }, {

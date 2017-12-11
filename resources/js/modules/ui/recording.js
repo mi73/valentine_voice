@@ -52,14 +52,23 @@ export default class Recording extends events {
     this.audioContext = new AudioContext();
     this.sampleRate = this.audioContext.sampleRate;
 
-    this.filter = this.audioContext.createBiquadFilter();
-    this.filter.type = 0;
-    this.filter.frequency.value = 20000;
+    // this.filter = this.audioContext.createBiquadFilter();
+    // this.filter.type = 0;
+    // this.filter.frequency.value = 20000;
     this.bufsize = 1024;
+
     this.data = new Float32Array(this.bufsize);
+    this.data2 = new Float32Array(this.bufsize);
+
+    this.datum = [];
+
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = this.bufsize;
-    this.analyser.smoothingTimeContant = 0.9;
+    this.analyser.smoothingTimeContant = 0;
+
+    this.analyser2 = this.audioContext.createAnalyser();
+    this.analyser2.fftSize = 32;
+    this.analyser2.smoothingTimeContant = 0;
 
     //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
 
@@ -74,9 +83,12 @@ export default class Recording extends events {
       console.log("stream" + stream);
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
-      //input.connect(analyser);
-      this.input.connect(this.filter);
-      this.filter.connect(this.analyser);
+
+      // this.input.connect(this.filter);
+      // this.filter.connect(this.analyser);
+
+      this.input.connect(this.analyser);
+      this.input.connect(this.analyser2);
       //this.analyser.connect(this.audioContext.destination);
       //this.recorder && this.recorder.record();
     }, (e) => {
@@ -133,20 +145,33 @@ export default class Recording extends events {
 
 
   drawGraph() {
-    //console.log(this.data);
+    console.log(this.data2);
 
     this.analyze();
 
+    let width = 512;
+
+    if (this.isRecording) {
+      this.datum.push(this.data.subarray(0, 512));
+    }
+
     this.context.fillStyle = "#000000";
     this.context.fillRect(0, 0, 512, 256);
-    this.context.fillStyle = "#009900";
 
+    
+    this.context.fillStyle = "#009900aa";
     for (let i = 0; i < 512; ++i) {
-      let f = this.audioContext.sampleRate * i / 1024;
       let y = 128 + (this.data[i] + 48.16) * 2.56;
       this.context.fillRect(i, 256 - y, 1, y);
     }
 
+    this.context.fillStyle = "#990000aa";
+    for (let i = 0; i < 32; ++i) {
+      let y = 128 + (this.data2[i] + 48.16) * 2.56;
+      this.context.fillRect(i * 32, 256 - y, 512/32, y);
+    }
+
+    // GRID
     this.context.fillStyle = "#ff8844";
     for (let d = -50; d < 50; d += 10) {
       let y = 128 - (d * 256 / 100) | 0;
@@ -154,6 +179,7 @@ export default class Recording extends events {
       this.context.fillText(d + "dB", 5, y);
     }
 
+    // Hz
     this.context.fillRect(20, 128, 512, 1);
     for (let f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
       let x = (f * 1024 / this.audioContext.sampleRate) | 0;
@@ -164,6 +190,7 @@ export default class Recording extends events {
 
   analyze() {
     this.analyser.getFloatFrequencyData(this.data);
+    this.analyser2.getFloatFrequencyData(this.data2);
     //this.analyser.getFloatTimeDomainData(this.data);
   }
 
