@@ -58,9 +58,10 @@ export default class Recording extends events {
     this.bufsize = 1024;
 
     this.data = new Float32Array(this.bufsize);
-    this.data2 = new Float32Array(this.bufsize);
+    this.data2 = new Float32Array(16);
 
     this.datum = [];
+    this.averages = [];
 
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = this.bufsize;
@@ -154,10 +155,17 @@ export default class Recording extends events {
     let width = 512;
 
     if (this.isRecording) {
-      this.datum.push(this.data.subarray(0, 512));
+      let sum = 0;
+      const copyData = new Float32Array(this.data2.length);
+      copyData.set(this.data2);
+      this.datum.push(copyData);
+      for (let i = 0; i < this.data2.length; i++) {
+        sum += this.data2[i];
+      }
+      this.averages.push(sum / this.data2.length);
     }
 
-    this.context.fillStyle = "#000000";
+    this.context.fillStyle = "#ffffff";
     this.context.fillRect(0, 0, 512, 256);
 
 
@@ -188,6 +196,16 @@ export default class Recording extends events {
       this.context.fillRect(x, 0, 1, 245);
       this.context.fillText(f + "Hz", x - 10, 255);
     }
+
+    this.context.strokeStyle = '#5722ff';
+    this.context.beginPath();
+    this.context.moveTo(0, 10);
+    const averageLength = this.averages.length;
+    for (let i = 0; i < averageLength; ++i) {
+      let y = 128 + (this.averages[i] + 48.16) * 2.56;
+      this.context.lineTo(i * 512 / averageLength, 256 - y);
+    }
+    this.context.stroke();
   }
 
   analyze() {

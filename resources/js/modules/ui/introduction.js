@@ -35,7 +35,6 @@ export default class Introduction extends events {
   }
 
   show() {
-
     velocity(this.$, {
       opacity: [1, 0],
     }, {
