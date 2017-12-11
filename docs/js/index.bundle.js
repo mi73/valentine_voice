@@ -530,7 +530,7 @@ var Recording = function (_events) {
       this.analyser.fftSize = this.bufsize;
       this.analyser.smoothingTimeContant = 0.9;
 
-      this.recorder = new Recorder(this.filter, { workerPath: 'js/recorderjs/recorderWorker.js' });
+      this.recorder = new Recorder(this.filter, { workerPath: './js/recorderjs/recorderWorker.js' });
 
       setInterval(function () {
         _this3.drawGraph();
