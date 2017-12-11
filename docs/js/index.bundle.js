@@ -380,6 +380,13 @@ var Introduction = function (_events) {
         console.log('click');
         e.preventDefault();
         _this2.hide();
+
+        navigator.getUserMedia({ video: false, audio: true }, function (stream) {
+          console.log("stream" + stream);
+          console.log(stream.getAudioTracks()[0]);
+        }, function (e) {
+          console.log("No live audio input in this browser: " + e);
+        });
       });
     }
   }, {
@@ -392,13 +399,6 @@ var Introduction = function (_events) {
         queue: false,
         display: 'block',
         duration: 800
-      });
-
-      navigator.getUserMedia({ video: false, audio: true }, function (stream) {
-        console.log("stream" + stream);
-        console.log(stream.getAudioTracks()[0]);
-      }, function (e) {
-        console.log("No live audio input in this browser: " + e);
       });
     }
   }, {
