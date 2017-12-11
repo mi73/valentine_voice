@@ -47,9 +47,9 @@ var Index = function () {
     this.top = new _top2.default('.top');
     this.introduction = new _introduction2.default('.introduction');
     this.recording1 = new _recording2.default('.recording1');
-    //
     // this.loading.hide();
     // this.recording1.show();
+    //
 
     window.addEventListener('load', function () {});
 
@@ -641,13 +641,13 @@ var Recording = function (_events) {
       this.context.fillStyle = "#000000";
       this.context.fillRect(0, 0, 512, 256);
 
-      this.context.fillStyle = "#009900aa";
+      this.context.fillStyle = "#009900";
       for (var i = 0; i < 512; ++i) {
         var y = 128 + (this.data[i] + 48.16) * 2.56;
         this.context.fillRect(i, 256 - y, 1, y);
       }
 
-      this.context.fillStyle = "#990000aa";
+      this.context.fillStyle = "#990000";
       for (var _i = 0; _i < 32; ++_i) {
         var _y = 128 + (this.data2[_i] + 48.16) * 2.56;
         this.context.fillRect(_i * 32, 256 - _y, 512 / 32, _y);

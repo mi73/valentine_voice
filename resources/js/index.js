@@ -15,9 +15,9 @@ class Index {
     this.top = new Top('.top');
     this.introduction = new Introduction('.introduction');
     this.recording1 = new Recording('.recording1');
-    //
     // this.loading.hide();
     // this.recording1.show();
+    //
 
     window.addEventListener('load', () => {
 

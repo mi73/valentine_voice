@@ -158,14 +158,14 @@ export default class Recording extends events {
     this.context.fillStyle = "#000000";
     this.context.fillRect(0, 0, 512, 256);
 
-    
-    this.context.fillStyle = "#009900aa";
+
+    this.context.fillStyle = "#009900";
     for (let i = 0; i < 512; ++i) {
       let y = 128 + (this.data[i] + 48.16) * 2.56;
       this.context.fillRect(i, 256 - y, 1, y);
     }
 
-    this.context.fillStyle = "#990000aa";
+    this.context.fillStyle = "#990000";
     for (let i = 0; i < 32; ++i) {
       let y = 128 + (this.data2[i] + 48.16) * 2.56;
       this.context.fillRect(i * 32, 256 - y, 512/32, y);
