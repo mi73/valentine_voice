@@ -381,12 +381,12 @@ var Introduction = function (_events) {
         e.preventDefault();
         _this2.hide();
 
-        navigator.getUserMedia({ video: false, audio: true }, function (stream) {
-          console.log("stream" + stream);
-          console.log(stream.getAudioTracks()[0]);
-        }, function (e) {
-          console.log("No live audio input in this browser: " + e);
-        });
+        // navigator.getUserMedia({video: false, audio: true}, (stream) => {
+        //   console.log("stream" + stream);
+        //   console.log(stream.getAudioTracks()[0]);
+        // }, (e) => {
+        //   console.log("No live audio input in this browser: " + e);
+        // });
       });
     }
   }, {

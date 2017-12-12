@@ -25,12 +25,12 @@ export default class Introduction extends events {
       e.preventDefault();
       this.hide();
 
-      navigator.getUserMedia({video: false, audio: true}, (stream) => {
-        console.log("stream" + stream);
-        console.log(stream.getAudioTracks()[0]);
-      }, (e) => {
-        console.log("No live audio input in this browser: " + e);
-      });
+      // navigator.getUserMedia({video: false, audio: true}, (stream) => {
+      //   console.log("stream" + stream);
+      //   console.log(stream.getAudioTracks()[0]);
+      // }, (e) => {
+      //   console.log("No live audio input in this browser: " + e);
+      // });
     });
   }
 
