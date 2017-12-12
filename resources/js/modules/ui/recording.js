@@ -58,7 +58,7 @@ export default class Recording extends events {
     this.bufsize = 1024;
 
     this.data = new Float32Array(this.bufsize);
-    this.data2 = new Float32Array(16);
+    this.data2 = new Uint8Array(16);
 
     this.datum = [];
     this.averages = [];
@@ -69,7 +69,7 @@ export default class Recording extends events {
 
     this.analyser2 = this.audioContext.createAnalyser();
     this.analyser2.fftSize = 32;
-    this.analyser2.smoothingTimeContant = 0;
+    this.analyser2.smoothingTimeContant = 0.9;
 
     //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
 
@@ -148,15 +148,17 @@ export default class Recording extends events {
 
 
   drawGraph() {
-    //console.log(this.data2);
 
     this.analyze();
 
     let width = 512;
 
     if (this.isRecording) {
+
+      console.log(this.data2);
+
       let sum = 0;
-      const copyData = new Float32Array(this.data2.length);
+      const copyData = new Uint8Array(this.data2.length);
       copyData.set(this.data2);
       this.datum.push(copyData);
       for (let i = 0; i < this.data2.length; i++) {
@@ -202,16 +204,21 @@ export default class Recording extends events {
     this.context.moveTo(0, 10);
     const averageLength = this.averages.length;
     for (let i = 0; i < averageLength; ++i) {
-      let y = 128 + (this.averages[i] + 48.16) * 2.56;
+      //let y = 128 + (this.averages[i] + 48.16) * 2.56;
       //this.context.lineTo(i * 512 / averageLength, 256 - y);
-      this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
+      //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
+      let y = this.averages[i];
+      this.context.lineTo(i * 512 / averageLength, y);
     }
     this.context.stroke();
   }
 
   analyze() {
     this.analyser.getFloatFrequencyData(this.data);
-    this.analyser2.getFloatTimeDomainData(this.data2);
+
+    // iOS非対応
+    //this.analyser2.getFloatTimeDomainData(this.data2);
+    this.analyser2.getByteTimeDomainData(this.data2);
   }
 
 

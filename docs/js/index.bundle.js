@@ -47,8 +47,8 @@ var Index = function () {
     this.top = new _top2.default('.top');
     this.introduction = new _introduction2.default('.introduction');
     this.recording1 = new _recording2.default('.recording1');
-    // this.loading.hide();
-    // this.recording1.show();
+    this.loading.hide();
+    this.recording1.show();
     //
 
     window.addEventListener('load', function () {});
@@ -545,7 +545,7 @@ var Recording = function (_events) {
       this.bufsize = 1024;
 
       this.data = new Float32Array(this.bufsize);
-      this.data2 = new Float32Array(16);
+      this.data2 = new Uint8Array(16);
 
       this.datum = [];
       this.averages = [];
@@ -556,7 +556,7 @@ var Recording = function (_events) {
 
       this.analyser2 = this.audioContext.createAnalyser();
       this.analyser2.fftSize = 32;
-      this.analyser2.smoothingTimeContant = 0;
+      this.analyser2.smoothingTimeContant = 0.9;
 
       //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
 
@@ -637,15 +637,17 @@ var Recording = function (_events) {
   }, {
     key: 'drawGraph',
     value: function drawGraph() {
-      //console.log(this.data2);
 
       this.analyze();
 
       var width = 512;
 
       if (this.isRecording) {
+
+        console.log(this.data2);
+
         var sum = 0;
-        var copyData = new Float32Array(this.data2.length);
+        var copyData = new Uint8Array(this.data2.length);
         copyData.set(this.data2);
         this.datum.push(copyData);
         for (var i = 0; i < this.data2.length; i++) {
@@ -690,9 +692,11 @@ var Recording = function (_events) {
       this.context.moveTo(0, 10);
       var averageLength = this.averages.length;
       for (var _i2 = 0; _i2 < averageLength; ++_i2) {
-        var _y2 = 128 + (this.averages[_i2] + 48.16) * 2.56;
+        //let y = 128 + (this.averages[i] + 48.16) * 2.56;
         //this.context.lineTo(i * 512 / averageLength, 256 - y);
-        this.context.lineTo(_i2 * 512 / averageLength, 128 + this.averages[_i2] * 5124);
+        //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
+        var _y2 = this.averages[_i2];
+        this.context.lineTo(_i2 * 512 / averageLength, _y2);
       }
       this.context.stroke();
     }
@@ -700,7 +704,10 @@ var Recording = function (_events) {
     key: 'analyze',
     value: function analyze() {
       this.analyser.getFloatFrequencyData(this.data);
-      this.analyser2.getFloatTimeDomainData(this.data2);
+
+      // iOS非対応
+      //this.analyser2.getFloatTimeDomainData(this.data2);
+      this.analyser2.getByteTimeDomainData(this.data2);
     }
   }, {
     key: 'reset',
