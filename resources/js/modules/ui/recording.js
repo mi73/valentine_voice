@@ -187,20 +187,20 @@ export default class Recording extends events {
     // }
 
     // GRID
-    this.context.fillStyle = "#ff8844";
-    for (let d = -50; d < 50; d += 10) {
-      let y = 128 - (d * 256 / 100) | 0;
-      this.context.fillRect(20, y, 512, 1);
-      this.context.fillText(d + "dB", 5, y);
-    }
+    // this.context.fillStyle = "#ff8844";
+    // for (let d = -50; d < 50; d += 10) {
+    //   let y = 128 - (d * 256 / 100) | 0;
+    //   this.context.fillRect(20, y, 512, 1);
+    //   this.context.fillText(d + "dB", 5, y);
+    // }
 
     // Hz
-    this.context.fillRect(20, 128, 512, 1);
-    for (let f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
-      let x = (f * 1024 / this.audioContext.sampleRate) | 0;
-      this.context.fillRect(x, 0, 1, 245);
-      this.context.fillText(f + "Hz", x - 10, 255);
-    }
+    // this.context.fillRect(20, 128, 512, 1);
+    // for (let f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
+    //   let x = (f * 1024 / this.audioContext.sampleRate) | 0;
+    //   this.context.fillRect(x, 0, 1, 245);
+    //   this.context.fillText(f + "Hz", x - 10, 255);
+    // }
 
     // line
     this.context.strokeStyle = '#5722ff';
