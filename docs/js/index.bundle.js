@@ -642,6 +642,8 @@ var Recording = function (_events) {
 
       var width = 512;
 
+      this.context.clearRect(0, 0, 1024, 512);
+
       if (this.isRecording) {
 
         console.log(this.data2);
@@ -657,12 +659,12 @@ var Recording = function (_events) {
       }
 
       this.context.fillStyle = "#ffffff";
-      this.context.fillRect(0, 0, 512, 256);
+      this.context.fillRect(0, 0, 1024, 512);
 
       this.context.fillStyle = "#009900";
       for (var _i = 0; _i < 512; ++_i) {
         var y = 128 + (this.data[_i] + 48.16) * 2.56;
-        this.context.fillRect(_i, 256 - y, 1, y);
+        this.context.fillRect(_i, 512 - y, 1, y);
       }
 
       this.context.fillStyle = "#990000";
@@ -687,16 +689,17 @@ var Recording = function (_events) {
         this.context.fillText(f + "Hz", x - 10, 255);
       }
 
+      // line
       this.context.strokeStyle = '#5722ff';
       this.context.beginPath();
-      this.context.moveTo(0, 10);
+      this.context.moveTo(0, 256);
       var averageLength = this.averages.length;
       for (var _i2 = 0; _i2 < averageLength; ++_i2) {
         //let y = 128 + (this.averages[i] + 48.16) * 2.56;
         //this.context.lineTo(i * 512 / averageLength, 256 - y);
         //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
-        var _y2 = this.averages[_i2];
-        this.context.lineTo(_i2 * 512 / averageLength, _y2);
+        var _y2 = this.averages[_i2] * 2;
+        this.context.lineTo(_i2 * 1080 / averageLength, _y2);
       }
       this.context.stroke();
     }

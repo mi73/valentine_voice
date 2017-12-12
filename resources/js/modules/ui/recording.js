@@ -153,6 +153,9 @@ export default class Recording extends events {
 
     let width = 512;
 
+
+    this.context.clearRect(0, 0, 1024, 512);
+
     if (this.isRecording) {
 
       console.log(this.data2);
@@ -168,13 +171,13 @@ export default class Recording extends events {
     }
 
     this.context.fillStyle = "#ffffff";
-    this.context.fillRect(0, 0, 512, 256);
+    this.context.fillRect(0, 0, 1024, 512);
 
 
     this.context.fillStyle = "#009900";
     for (let i = 0; i < 512; ++i) {
       let y = 128 + (this.data[i] + 48.16) * 2.56;
-      this.context.fillRect(i, 256 - y, 1, y);
+      this.context.fillRect(i, 512 - y, 1, y);
     }
 
     this.context.fillStyle = "#990000";
@@ -199,16 +202,17 @@ export default class Recording extends events {
       this.context.fillText(f + "Hz", x - 10, 255);
     }
 
+    // line
     this.context.strokeStyle = '#5722ff';
     this.context.beginPath();
-    this.context.moveTo(0, 10);
+    this.context.moveTo(0, 256);
     const averageLength = this.averages.length;
     for (let i = 0; i < averageLength; ++i) {
       //let y = 128 + (this.averages[i] + 48.16) * 2.56;
       //this.context.lineTo(i * 512 / averageLength, 256 - y);
       //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
-      let y = this.averages[i];
-      this.context.lineTo(i * 512 / averageLength, y);
+      let y = this.averages[i] * 2;
+      this.context.lineTo(i * 1080 / averageLength, y);
     }
     this.context.stroke();
   }
