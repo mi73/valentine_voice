@@ -104,12 +104,12 @@ export default class Recording extends events {
 
     // 周波数
     this.context.fillStyle = "#009900";
-    for (let i = 0; i < 512; ++i) {
-      let y = 128 + (recorder.data[i] + 48.16) * 2.56;
-      this.context.fillRect(i, 512 - y, 1, y);
+    for (let i = 0; i < recorder.frequency.length; ++i) {
+      let y = 128 + (recorder.frequency[i] + 48.16) * 2.56;
+      this.context.fillRect(i * recorder.frequency.length / width, height - y, 1, y);
     }
 
-    this.context.fillStyle = "#990000";
+    this.context.fillStyle = "rgb(153,36,95)";
     // for (let i = 0; i < 32; ++i) {
     //   let y = 128 + (this.data2[i] + 48.16) * 2.56;
     //   this.context.fillRect(i * 32, 256 - y, 512/32, y);
@@ -132,7 +132,7 @@ export default class Recording extends events {
     // }
 
     // line
-    this.context.strokeStyle = '#5722ff';
+    this.context.strokeStyle = 'rgb(87,34,255)';
     this.context.beginPath();
     this.context.moveTo(0, 256);
     const averageLength = recorder.averages.length;
@@ -141,25 +141,27 @@ export default class Recording extends events {
       //this.context.lineTo(i * 512 / averageLength, 256 - y);
       //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
       let y = recorder.averages[i] * 2;
-      this.context.lineTo(i * 1080 / averageLength, y);
+      this.context.lineTo(i * width / averageLength, y);
     }
     this.context.stroke();
 
+    this.context.lineWidth = 0.4;
+    this.context.globalAlpha = 0.3;
 
-    for (let j = 0; j < recorder.datum2[0].length; ++j) {
-      this.context.strokeStyle = '#5722ff';
+    let frequencyLength = recorder.domains[0].length;
+
+    for (let j = 0; j < frequencyLength / 4; j += 4) {
+      //console.log(`rgb(${Math.floor(87 + 66 * j / frequencyLength)},${Math.floor(34 + 2 * j / frequencyLength)},${Math.floor(255 - 160 * j / frequencyLength)})`);
+      this.context.strokeStyle = `rgb(${Math.floor(255 - 160 * j / frequencyLength)},${Math.floor(34 + 2 * j / frequencyLength)},${Math.floor(87 + 166 * j / frequencyLength)})`; //153,36,95
       this.context.beginPath();
       this.context.moveTo(0, 256);
-      const averageLength = recorder.averages.length;
-      for (let i = 0; i < averageLength; ++i) {
-        //let y = 128 + (this.averages[i] + 48.16) * 2.56;
-        //this.context.lineTo(i * 512 / averageLength, 256 - y);
-        //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
-        let y = recorder.datum2[j][i] * 2;
-        this.context.lineTo(i * 1080 / averageLength, y);
+      for (let i = 0; i < recorder.domains.length; ++i) {
+        let y = recorder.domains[i][j] * 2;
+        this.context.lineTo(i * width / recorder.domains.length, y);
       }
       this.context.stroke();
     }
+    this.context.globalAlpha = 1;
   }
 
 }

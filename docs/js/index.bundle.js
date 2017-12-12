@@ -610,12 +610,12 @@ var Recording = function (_events) {
 
       // 周波数
       this.context.fillStyle = "#009900";
-      for (var i = 0; i < 512; ++i) {
-        var y = 128 + (recorder.data[i] + 48.16) * 2.56;
-        this.context.fillRect(i, 512 - y, 1, y);
+      for (var i = 0; i < recorder.frequency.length; ++i) {
+        var y = 128 + (recorder.frequency[i] + 48.16) * 2.56;
+        this.context.fillRect(i * recorder.frequency.length / width, height - y, 1, y);
       }
 
-      this.context.fillStyle = "#990000";
+      this.context.fillStyle = "rgb(153,36,95)";
       // for (let i = 0; i < 32; ++i) {
       //   let y = 128 + (this.data2[i] + 48.16) * 2.56;
       //   this.context.fillRect(i * 32, 256 - y, 512/32, y);
@@ -638,7 +638,7 @@ var Recording = function (_events) {
       // }
 
       // line
-      this.context.strokeStyle = '#5722ff';
+      this.context.strokeStyle = 'rgb(87,34,255)';
       this.context.beginPath();
       this.context.moveTo(0, 256);
       var averageLength = recorder.averages.length;
@@ -647,24 +647,27 @@ var Recording = function (_events) {
         //this.context.lineTo(i * 512 / averageLength, 256 - y);
         //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
         var _y = recorder.averages[_i] * 2;
-        this.context.lineTo(_i * 1080 / averageLength, _y);
+        this.context.lineTo(_i * width / averageLength, _y);
       }
       this.context.stroke();
 
-      for (var j = 0; j < recorder.datum2[0].length; ++j) {
-        this.context.strokeStyle = '#5722ff';
+      this.context.lineWidth = 0.4;
+      this.context.globalAlpha = 0.3;
+
+      var frequencyLength = recorder.domains[0].length;
+
+      for (var j = 0; j < frequencyLength / 4; j += 4) {
+        //console.log(`rgb(${Math.floor(87 + 66 * j / frequencyLength)},${Math.floor(34 + 2 * j / frequencyLength)},${Math.floor(255 - 160 * j / frequencyLength)})`);
+        this.context.strokeStyle = 'rgb(' + Math.floor(255 - 160 * j / frequencyLength) + ',' + Math.floor(34 + 2 * j / frequencyLength) + ',' + Math.floor(87 + 166 * j / frequencyLength) + ')'; //153,36,95
         this.context.beginPath();
         this.context.moveTo(0, 256);
-        var _averageLength = recorder.averages.length;
-        for (var _i2 = 0; _i2 < _averageLength; ++_i2) {
-          //let y = 128 + (this.averages[i] + 48.16) * 2.56;
-          //this.context.lineTo(i * 512 / averageLength, 256 - y);
-          //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
-          var _y2 = recorder.datum2[j][_i2] * 2;
-          this.context.lineTo(_i2 * 1080 / _averageLength, _y2);
+        for (var _i2 = 0; _i2 < recorder.domains.length; ++_i2) {
+          var _y2 = recorder.domains[_i2][j] * 2;
+          this.context.lineTo(_i2 * width / recorder.domains.length, _y2);
         }
         this.context.stroke();
       }
+      this.context.globalAlpha = 1;
     }
   }]);
 
@@ -711,22 +714,25 @@ var LoveRecorder = function (_events) {
     _this.audioContext = new AudioContext();
     _this.sampleRate = _this.audioContext.sampleRate;
 
-    _this.bufsize = 1024;
-
-    _this.data = new Float32Array(_this.bufsize);
-    _this.data2 = new Uint8Array(16);
-
-    _this.datum = [];
-    _this.datum2 = [];
-    _this.averages = [];
+    _this.fftSize = 2048;
 
     _this.analyser = _this.audioContext.createAnalyser();
-    _this.analyser.fftSize = _this.bufsize;
+    _this.analyser.fftSize = _this.fftSize;
     _this.analyser.smoothingTimeContant = 0;
 
     _this.analyser2 = _this.audioContext.createAnalyser();
-    _this.analyser2.fftSize = 32;
+    _this.analyser2.fftSize = _this.fftSize;
     _this.analyser2.smoothingTimeContant = 0.9;
+
+    _this.bufsize = _this.analyser.frequencyBinCount;
+
+    _this.frequency = new Float32Array(_this.bufsize);
+    _this.domain = new Uint8Array(_this.bufsize);
+
+    _this.frequencys = [];
+    _this.domains = [];
+    _this.averages = [];
+
     return _this;
   }
 
@@ -780,26 +786,26 @@ var LoveRecorder = function (_events) {
     key: 'analyze',
     value: function analyze() {
 
-      this.analyser.getFloatFrequencyData(this.data);
-      this.analyser2.getByteTimeDomainData(this.data2);
+      this.analyser.getFloatFrequencyData(this.frequency);
+      this.analyser.getByteTimeDomainData(this.domain);
 
-      if (this.isRecording && this.data2[0] > -1000) {
+      if (this.isRecording && this.domain[0] > -1000) {
 
-        console.log(this.data);
+        console.log(this.frequency);
         var sum = 0;
 
-        var copyData = new Float32Array(this.data.length);
-        copyData.set(this.data);
-        this.datum.push(copyData);
+        var copyData = new Float32Array(this.frequency.length / 8);
+        copyData.set(this.frequency.subarray(0, this.frequency.length / 8));
+        this.frequencys.push(copyData);
 
-        var copyData2 = new Uint8Array(this.data2.length);
-        copyData2.set(this.data2);
-        this.datum2.push(copyData2);
+        var copyData2 = new Uint8Array(this.domain.length / 8);
+        copyData2.set(this.domain.subarray(0, this.domain.length / 8));
+        this.domains.push(copyData2);
 
-        for (var i = 0; i < this.data2.length; i++) {
-          sum += this.data2[i];
+        for (var i = 0; i < this.domain.length; i++) {
+          sum += this.domain[i];
         }
-        this.averages.push(sum / this.data2.length);
+        this.averages.push(sum / this.domain.length);
 
         this.emit('getData', this);
       }

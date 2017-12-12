@@ -8,22 +8,25 @@ export default class LoveRecorder extends events {
     this.audioContext = new AudioContext();
     this.sampleRate = this.audioContext.sampleRate;
 
-    this.bufsize = 1024;
-
-    this.data = new Float32Array(this.bufsize);
-    this.data2 = new Uint8Array(16);
-
-    this.datum = [];
-    this.datum2 = [];
-    this.averages = [];
+    this.fftSize = 2048;
 
     this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = this.bufsize;
+    this.analyser.fftSize = this.fftSize;
     this.analyser.smoothingTimeContant = 0;
 
     this.analyser2 = this.audioContext.createAnalyser();
-    this.analyser2.fftSize = 32;
+    this.analyser2.fftSize = this.fftSize;
     this.analyser2.smoothingTimeContant = 0.9;
+
+    this.bufsize = this.analyser.frequencyBinCount;
+
+    this.frequency= new Float32Array(this.bufsize);
+    this.domain = new Uint8Array(this.bufsize);
+
+    this.frequencys = [];
+    this.domains = [];
+    this.averages = [];
+
   }
 
   initialize() {
@@ -68,26 +71,26 @@ export default class LoveRecorder extends events {
 
   analyze() {
 
-    this.analyser.getFloatFrequencyData(this.data);
-    this.analyser2.getByteTimeDomainData(this.data2);
+    this.analyser.getFloatFrequencyData(this.frequency);
+    this.analyser.getByteTimeDomainData(this.domain);
 
-    if (this.isRecording && this.data2[0] > -1000) {
+    if (this.isRecording && this.domain[0] > -1000) {
 
-      console.log(this.data);
+      console.log(this.frequency);
       let sum = 0;
 
-      const copyData = new Float32Array(this.data.length);
-      copyData.set(this.data);
-      this.datum.push(copyData);
+      const copyData = new Float32Array(this.frequency.length / 8);
+      copyData.set(this.frequency.subarray(0, this.frequency.length / 8));
+      this.frequencys.push(copyData);
 
-      const copyData2 = new Uint8Array(this.data2.length);
-      copyData2.set(this.data2);
-      this.datum2.push(copyData2);
+      const copyData2 = new Uint8Array(this.domain.length / 8);
+      copyData2.set(this.domain.subarray(0, this.domain.length / 8));
+      this.domains.push(copyData2);
 
-      for (let i = 0; i < this.data2.length; i++) {
-        sum += this.data2[i];
+      for (let i = 0; i < this.domain.length; i++) {
+        sum += this.domain[i];
       }
-      this.averages.push(sum / this.data2.length);
+      this.averages.push(sum / this.domain.length);
 
       this.emit('getData', this);
     }
