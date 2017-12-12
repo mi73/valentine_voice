@@ -664,17 +664,17 @@ var Recording = function (_events) {
       }
 
       this.context.fillStyle = "#990000";
-      for (var _i2 = 0; _i2 < 32; ++_i2) {
-        var _y = 128 + (this.data2[_i2] + 48.16) * 2.56;
-        this.context.fillRect(_i2 * 32, 256 - _y, 512 / 32, _y);
-      }
+      // for (let i = 0; i < 32; ++i) {
+      //   let y = 128 + (this.data2[i] + 48.16) * 2.56;
+      //   this.context.fillRect(i * 32, 256 - y, 512/32, y);
+      // }
 
       // GRID
       this.context.fillStyle = "#ff8844";
       for (var d = -50; d < 50; d += 10) {
-        var _y2 = 128 - d * 256 / 100 | 0;
-        this.context.fillRect(20, _y2, 512, 1);
-        this.context.fillText(d + "dB", 5, _y2);
+        var _y = 128 - d * 256 / 100 | 0;
+        this.context.fillRect(20, _y, 512, 1);
+        this.context.fillText(d + "dB", 5, _y);
       }
 
       // Hz
@@ -689,10 +689,10 @@ var Recording = function (_events) {
       this.context.beginPath();
       this.context.moveTo(0, 10);
       var averageLength = this.averages.length;
-      for (var _i3 = 0; _i3 < averageLength; ++_i3) {
-        var _y3 = 128 + (this.averages[_i3] + 48.16) * 2.56;
+      for (var _i2 = 0; _i2 < averageLength; ++_i2) {
+        var _y2 = 128 + (this.averages[_i2] + 48.16) * 2.56;
         //this.context.lineTo(i * 512 / averageLength, 256 - y);
-        this.context.lineTo(_i3 * 512 / averageLength, 128 + this.averages[_i3] * 5124);
+        this.context.lineTo(_i2 * 512 / averageLength, 128 + this.averages[_i2] * 5124);
       }
       this.context.stroke();
     }

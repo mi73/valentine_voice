@@ -176,10 +176,10 @@ export default class Recording extends events {
     }
 
     this.context.fillStyle = "#990000";
-    for (let i = 0; i < 32; ++i) {
-      let y = 128 + (this.data2[i] + 48.16) * 2.56;
-      this.context.fillRect(i * 32, 256 - y, 512/32, y);
-    }
+    // for (let i = 0; i < 32; ++i) {
+    //   let y = 128 + (this.data2[i] + 48.16) * 2.56;
+    //   this.context.fillRect(i * 32, 256 - y, 512/32, y);
+    // }
 
     // GRID
     this.context.fillStyle = "#ff8844";
