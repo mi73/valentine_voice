@@ -32,6 +32,10 @@ var _recording = __webpack_require__(335);
 
 var _recording2 = _interopRequireDefault(_recording);
 
+var _LoveRecorder = __webpack_require__(336);
+
+var _LoveRecorder2 = _interopRequireDefault(_LoveRecorder);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47,9 +51,11 @@ var Index = function () {
     this.top = new _top2.default('.top');
     this.introduction = new _introduction2.default('.introduction');
     this.recording1 = new _recording2.default('.recording1');
-    this.loading.hide();
-    this.recording1.show();
+    // this.loading.hide();
+    // this.recording1.show();
     //
+
+    this.loveRecorder = new _LoveRecorder2.default();
 
     window.addEventListener('load', function () {});
 
@@ -71,6 +77,18 @@ var Index = function () {
 
       this.introduction.on('hidden', function () {
         _this.recording1.show();
+      }).on('hide', function (stream) {
+        _this.loveRecorder.initialize();
+      });
+
+      this.recording1.on('startRecording', function () {
+        _this.loveRecorder.startRecording();
+      }).on('stopRecording', function () {
+        _this.loveRecorder.stopRecording();
+      });
+
+      this.loveRecorder.on('getData', function () {
+        _this.recording1.drawGraph(_this.loveRecorder);
       });
     }
   }]);
@@ -380,13 +398,7 @@ var Introduction = function (_events) {
         console.log('click');
         e.preventDefault();
         _this2.hide();
-
-        // navigator.getUserMedia({video: false, audio: true}, (stream) => {
-        //   console.log("stream" + stream);
-        //   console.log(stream.getAudioTracks()[0]);
-        // }, (e) => {
-        //   console.log("No live audio input in this browser: " + e);
-        // });
+        _this2.emit('hide');
       });
     }
   }, {
@@ -494,7 +506,12 @@ var Recording = function (_events) {
     _this.canvas = document.getElementById("cvs");
     _this.context = _this.canvas.getContext("2d");
 
+    _this.initialize();
     _this.bind();
+
+    _this.isCountingDown = false;
+    _this.isRecording = false;
+    _this.isRecorded = false;
     return _this;
   }
 
@@ -518,153 +535,84 @@ var Recording = function (_events) {
       var _this2 = this;
 
       this.$a.addEventListener('click', function (e) {
-
-        if (_this2.isRecording) {
-          _this2.stop();
-        } else {
-          _this2.record();
+        if (_this2.isCountingDown) {
+          _this2.stopCountDown();
+        } else if (_this2.isRecording) {
+          _this2.stopRecording();
+        } else if (!_this2.isRecorded) {
+          _this2.startCountDown();
         }
       });
     }
   }, {
-    key: 'record',
-    value: function record() {
+    key: 'startCountDown',
+    value: function startCountDown() {
       var _this3 = this;
 
-      this.isRecording = true;
-      console.log('record');
+      var count = 3;
+      this.isCountingDown = true;
 
-      window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-      this.audioContext = new AudioContext();
-      this.sampleRate = this.audioContext.sampleRate;
-
-      // this.filter = this.audioContext.createBiquadFilter();
-      // this.filter.type = 0;
-      // this.filter.frequency.value = 20000;
-      this.bufsize = 1024;
-
-      this.data = new Float32Array(this.bufsize);
-      this.data2 = new Uint8Array(16);
-
-      this.datum = [];
-      this.averages = [];
-
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0;
-
-      this.analyser2 = this.audioContext.createAnalyser();
-      this.analyser2.fftSize = 32;
-      this.analyser2.smoothingTimeContant = 0.9;
-
-      //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
-
-      setInterval(function () {
-        _this3.drawGraph();
-      }, 1000 / 60);
-      // setTimeout(() => {
-      //   this.drawGraph();
-      // }, 3000);
-
-      navigator.getUserMedia({ video: false, audio: true }, function (stream) {
-        console.log("stream" + stream);
-        _this3.stream = stream;
-        _this3.input = _this3.audioContext.createMediaStreamSource(stream);
-
-        // this.input.connect(this.filter);
-        // this.filter.connect(this.analyser);
-
-        _this3.input.connect(_this3.analyser);
-        _this3.input.connect(_this3.analyser2);
-        //this.analyser.connect(this.audioContext.destination);
-        //this.recorder && this.recorder.record();
-
-        console.log(_this3.stream.getAudioTracks()[0]);
-      }, function (e) {
-        console.log("No live audio input in this browser: " + e);
-      });
+      this.timer = setInterval(function () {
+        count--;
+        _this3.$a.innerText = count;
+        if (count === 0) {
+          clearInterval(_this3.timer);
+          _this3.startRecording();
+        }
+      }, 1000);
+      this.$a.innerText = count;
     }
   }, {
-    key: 'stop',
-    value: function stop() {
-
-      this.isRecording = false;
-      this.stream.getAudioTracks()[0].stop();
-
-      // this.recorder && this.recorder.stop();
-      // this.recorder && this.recorder.exportWAV((blob) => {
-      //   this.wavExported(blob);
-      // });
+    key: 'stopCountDown',
+    value: function stopCountDown() {
+      clearInterval(this.timer);
+      this.$a.innerText = '録音';
+      this.isCountingDown = false;
     }
-    //
-    // wavExported(blob) {
-    //   console.log(blob);
-    //
-    //   var date = new Date();
-    //   var fname = date.toISOString() + '.wav';
-    //   var timeline = document.querySelector('#timeline');
-    //
-    //   var reader = new FileReader();
-    //   var out = new Blob([blob], {type: 'audio/wav'});
-    //   reader.onload = function (e) {
-    //     var url = reader.result;
-    //
-    //     timeline.innerHTML = '<li>' +
-    //       fname + // date.toLocaleTimeString() +
-    //       ' <a onclick="wavPlay(\'' + url + '\');"><span class="glyphicon glyphicon-play">PLAY</span></a>' +
-    //       ' <a href="' + url + '" download="' + fname + '"><span class="glyphicon glyphicon-save">DOWNLOAD</span></a>' +
-    //       '</li>';
-    //
-    //     recorder.clear();
-    //   };
-    //   reader.readAsDataURL(out);
-    //
-    //   return;
-    //
-    //   var url = URL.createObjectURL(blob);
-    //
-    //   timeline.innerHTML = '<li>' +
-    //     fname + // date.toLocaleTimeString() +
-    //     ' <a onclick="wavPlay(\'' + url + '\');"><span class="glyphicon glyphicon-play">PLAY</span></a>' +
-    //     ' <a href="' + url + '" download="' + fname + '"><span class="glyphicon glyphicon-save">DOWNLOAD</span></a>' +
-    //     '</li>';
-    //
-    //   recorder.clear();
-    // }
+  }, {
+    key: 'startRecording',
+    value: function startRecording() {
+      var _this4 = this;
 
+      this.isRecording = true;
+      this.isCountingDown = false;
+      this.$a.innerText = '録音中';
+      this.emit('startRecording');
 
+      setTimeout(function () {
+        if (!_this4.isRecorded) {
+          _this4.stopRecording();
+        }
+      }, 3000);
+    }
+  }, {
+    key: 'stopRecording',
+    value: function stopRecording() {
+
+      this.isCountingDown = false;
+      this.isRecording = false;
+      this.isRecorded = true;
+      this.$a.innerText = '愛してる';
+      this.emit('stopRecording');
+    }
   }, {
     key: 'drawGraph',
-    value: function drawGraph() {
+    value: function drawGraph(recorder) {
 
-      this.analyze();
+      var width = 1024;
+      var height = 512;
 
-      var width = 512;
+      this.context.clearRect(0, 0, width, height);
 
-      this.context.clearRect(0, 0, 1024, 512);
-
-      if (this.isRecording) {
-
-        console.log(this.data2);
-
-        var sum = 0;
-        var copyData = new Uint8Array(this.data2.length);
-        copyData.set(this.data2);
-        this.datum.push(copyData);
-        for (var i = 0; i < this.data2.length; i++) {
-          sum += this.data2[i];
-        }
-        this.averages.push(sum / this.data2.length);
-      }
-
+      // 白塗り
       this.context.fillStyle = "#ffffff";
       this.context.fillRect(0, 0, 1024, 512);
 
+      // 周波数
       this.context.fillStyle = "#009900";
-      for (var _i = 0; _i < 512; ++_i) {
-        var y = 128 + (this.data[_i] + 48.16) * 2.56;
-        this.context.fillRect(_i, 512 - y, 1, y);
+      for (var i = 0; i < 512; ++i) {
+        var y = 128 + (recorder.data[i] + 48.16) * 2.56;
+        this.context.fillRect(i, 512 - y, 1, y);
       }
 
       this.context.fillStyle = "#990000";
@@ -693,34 +641,178 @@ var Recording = function (_events) {
       this.context.strokeStyle = '#5722ff';
       this.context.beginPath();
       this.context.moveTo(0, 256);
-      var averageLength = this.averages.length;
-      for (var _i2 = 0; _i2 < averageLength; ++_i2) {
+      var averageLength = recorder.averages.length;
+      for (var _i = 0; _i < averageLength; ++_i) {
         //let y = 128 + (this.averages[i] + 48.16) * 2.56;
         //this.context.lineTo(i * 512 / averageLength, 256 - y);
         //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
-        var _y = this.averages[_i2] * 2;
-        this.context.lineTo(_i2 * 1080 / averageLength, _y);
+        var _y = recorder.averages[_i] * 2;
+        this.context.lineTo(_i * 1080 / averageLength, _y);
       }
       this.context.stroke();
-    }
-  }, {
-    key: 'analyze',
-    value: function analyze() {
-      this.analyser.getFloatFrequencyData(this.data);
 
-      // iOS非対応
-      //this.analyser2.getFloatTimeDomainData(this.data2);
-      this.analyser2.getByteTimeDomainData(this.data2);
+      for (var j = 0; j < recorder.datum2[0].length; ++j) {
+        this.context.strokeStyle = '#5722ff';
+        this.context.beginPath();
+        this.context.moveTo(0, 256);
+        var _averageLength = recorder.averages.length;
+        for (var _i2 = 0; _i2 < _averageLength; ++_i2) {
+          //let y = 128 + (this.averages[i] + 48.16) * 2.56;
+          //this.context.lineTo(i * 512 / averageLength, 256 - y);
+          //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
+          var _y2 = recorder.datum2[j][_i2] * 2;
+          this.context.lineTo(_i2 * 1080 / _averageLength, _y2);
+        }
+        this.context.stroke();
+      }
     }
-  }, {
-    key: 'reset',
-    value: function reset() {}
   }]);
 
   return Recording;
 }(_events3.default);
 
 exports.default = Recording;
+
+/***/ }),
+
+/***/ 336:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _events2 = __webpack_require__(64);
+
+var _events3 = _interopRequireDefault(_events2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var LoveRecorder = function (_events) {
+  _inherits(LoveRecorder, _events);
+
+  function LoveRecorder(selector) {
+    _classCallCheck(this, LoveRecorder);
+
+    var _this = _possibleConstructorReturn(this, (LoveRecorder.__proto__ || Object.getPrototypeOf(LoveRecorder)).call(this));
+
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    _this.audioContext = new AudioContext();
+    _this.sampleRate = _this.audioContext.sampleRate;
+
+    _this.bufsize = 1024;
+
+    _this.data = new Float32Array(_this.bufsize);
+    _this.data2 = new Uint8Array(16);
+
+    _this.datum = [];
+    _this.datum2 = [];
+    _this.averages = [];
+
+    _this.analyser = _this.audioContext.createAnalyser();
+    _this.analyser.fftSize = _this.bufsize;
+    _this.analyser.smoothingTimeContant = 0;
+
+    _this.analyser2 = _this.audioContext.createAnalyser();
+    _this.analyser2.fftSize = 32;
+    _this.analyser2.smoothingTimeContant = 0.9;
+    return _this;
+  }
+
+  _createClass(LoveRecorder, [{
+    key: 'initialize',
+    value: function initialize() {
+      var _this2 = this;
+
+      navigator.getUserMedia({ video: false, audio: true }, function (stream) {
+        _this2.stream = stream;
+        _this2.input = _this2.audioContext.createMediaStreamSource(stream);
+        _this2.input.connect(_this2.analyser);
+        _this2.input.connect(_this2.analyser2);
+
+        // this.input.connect(this.filter);
+        // this.filter.connect(this.analyser);
+
+        _this2.audioTrack = stream.getAudioTracks()[0];
+
+        console.log('initialized');
+      }, function (e) {
+        console.log("No live audio input in this browser: " + e);
+      });
+    }
+  }, {
+    key: 'startRecording',
+    value: function startRecording() {
+      this.isRecording = true;
+      this.startAnalyze();
+    }
+  }, {
+    key: 'stopRecording',
+    value: function stopRecording() {
+      this.isRecording = false;
+      this.audioTrack.stop();
+    }
+  }, {
+    key: 'startAnalyze',
+    value: function startAnalyze() {
+      var _this3 = this;
+
+      var frame = function frame() {
+        if (_this3.isRecording) {
+          requestAnimationFrame(frame);
+          _this3.analyze();
+        }
+      };
+      frame();
+    }
+  }, {
+    key: 'analyze',
+    value: function analyze() {
+
+      this.analyser.getFloatFrequencyData(this.data);
+      this.analyser2.getByteTimeDomainData(this.data2);
+
+      if (this.isRecording && this.data2[0] > -1000) {
+
+        console.log(this.data);
+        var sum = 0;
+
+        var copyData = new Float32Array(this.data.length);
+        copyData.set(this.data);
+        this.datum.push(copyData);
+
+        var copyData2 = new Uint8Array(this.data2.length);
+        copyData2.set(this.data2);
+        this.datum2.push(copyData2);
+
+        for (var i = 0; i < this.data2.length; i++) {
+          sum += this.data2[i];
+        }
+        this.averages.push(sum / this.data2.length);
+
+        this.emit('getData', this);
+      }
+    }
+  }, {
+    key: 'reset',
+    value: function reset() {}
+  }]);
+
+  return LoveRecorder;
+}(_events3.default);
+
+exports.default = LoveRecorder;
 
 /***/ }),
 

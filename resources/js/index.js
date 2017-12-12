@@ -1,8 +1,9 @@
 import Loading from './modules/ui/loading';
 import Top from './modules/ui/top';
 import Introduction from './modules/ui/introduction';
-
 import Recording from './modules/ui/recording';
+
+import LoveRecorder from './modules/LoveRecorder';
 
 
 /**
@@ -15,9 +16,11 @@ class Index {
     this.top = new Top('.top');
     this.introduction = new Introduction('.introduction');
     this.recording1 = new Recording('.recording1');
-     this.loading.hide();
-     this.recording1.show();
+     // this.loading.hide();
+     // this.recording1.show();
     //
+
+    this.loveRecorder = new LoveRecorder;
 
     window.addEventListener('load', () => {
 
@@ -38,6 +41,18 @@ class Index {
 
     this.introduction.on('hidden', () => {
       this.recording1.show();
+    }).on('hide', (stream) => {
+      this.loveRecorder.initialize();
+    });
+
+    this.recording1.on('startRecording', () => {
+      this.loveRecorder.startRecording()
+    }).on('stopRecording', () => {
+      this.loveRecorder.stopRecording();
+    });
+
+    this.loveRecorder.on('getData', () => {
+      this.recording1.drawGraph(this.loveRecorder);
     });
   }
 }
