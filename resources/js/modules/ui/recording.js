@@ -114,37 +114,39 @@ export default class Recording extends events {
   }
 
   drawGraph() {
-    this.analyze();
 
-    this.context.fillStyle = "#000000";
-    this.context.fillRect(0, 0, 512, 256);
-    this.context.fillStyle = "#009900";
+    if (this.isRecording) {
 
-    for (let i = 0; i < 512; ++i) {
-      let f = this.audioContext.sampleRate * i / 1024;
-      let y = 128 + (this.data[i] + 48.16) * 2.56;
-      this.context.fillRect(i, 256 - y, 1, y);
-    }
+      this.analyze();
+      this.context.fillStyle = "#000000";
+      this.context.fillRect(0, 0, 512, 256);
+      this.context.fillStyle = "#009900";
 
-    this.context.fillStyle = "#ff8844";
-    for (let d = -50; d < 50; d += 10) {
-      let y = 128 - (d * 256 / 100) | 0;
-      this.context.fillRect(20, y, 512, 1);
-      this.context.fillText(d + "dB", 5, y);
-    }
+      for (let i = 0; i < 512; ++i) {
+        let f = this.audioContext.sampleRate * i / 1024;
+        let y = 128 + (this.data[i] + 48.16) * 2.56;
+        this.context.fillRect(i, 256 - y, 1, y);
+      }
 
-    this.context.fillRect(20, 128, 512, 1);
-    for (let f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
-      let x = (f * 1024 / this.audioContext.sampleRate) | 0;
-      this.context.fillRect(x, 0, 1, 245);
-      this.context.fillText(f + "Hz", x - 10, 255);
+      this.context.fillStyle = "#ff8844";
+      for (let d = -50; d < 50; d += 10) {
+        let y = 128 - (d * 256 / 100) | 0;
+        this.context.fillRect(20, y, 512, 1);
+        this.context.fillText(d + "dB", 5, y);
+      }
+
+      this.context.fillRect(20, 128, 512, 1);
+      for (let f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
+        let x = (f * 1024 / this.audioContext.sampleRate) | 0;
+        this.context.fillRect(x, 0, 1, 245);
+        this.context.fillText(f + "Hz", x - 10, 255);
+      }
     }
   }
 
   analyze() {
     this.analyser.getFloatFrequencyData(this.data);
     this.analyser.getByteTimeDomainData(this.data2);
-    console.log(this.data, this.data2);
   }
 
 

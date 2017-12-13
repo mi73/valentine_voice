@@ -618,30 +618,33 @@ var Recording = function (_events) {
   }, {
     key: 'drawGraph',
     value: function drawGraph() {
-      this.analyze();
 
-      this.context.fillStyle = "#000000";
-      this.context.fillRect(0, 0, 512, 256);
-      this.context.fillStyle = "#009900";
+      if (this.isRecording) {
 
-      for (var i = 0; i < 512; ++i) {
-        var f = this.audioContext.sampleRate * i / 1024;
-        var y = 128 + (this.data[i] + 48.16) * 2.56;
-        this.context.fillRect(i, 256 - y, 1, y);
-      }
+        this.analyze();
+        this.context.fillStyle = "#000000";
+        this.context.fillRect(0, 0, 512, 256);
+        this.context.fillStyle = "#009900";
 
-      this.context.fillStyle = "#ff8844";
-      for (var d = -50; d < 50; d += 10) {
-        var _y = 128 - d * 256 / 100 | 0;
-        this.context.fillRect(20, _y, 512, 1);
-        this.context.fillText(d + "dB", 5, _y);
-      }
+        for (var i = 0; i < 512; ++i) {
+          var f = this.audioContext.sampleRate * i / 1024;
+          var y = 128 + (this.data[i] + 48.16) * 2.56;
+          this.context.fillRect(i, 256 - y, 1, y);
+        }
 
-      this.context.fillRect(20, 128, 512, 1);
-      for (var _f = 2000; _f < this.audioContext.sampleRate / 2; _f += 2000) {
-        var x = _f * 1024 / this.audioContext.sampleRate | 0;
-        this.context.fillRect(x, 0, 1, 245);
-        this.context.fillText(_f + "Hz", x - 10, 255);
+        this.context.fillStyle = "#ff8844";
+        for (var d = -50; d < 50; d += 10) {
+          var _y = 128 - d * 256 / 100 | 0;
+          this.context.fillRect(20, _y, 512, 1);
+          this.context.fillText(d + "dB", 5, _y);
+        }
+
+        this.context.fillRect(20, 128, 512, 1);
+        for (var _f = 2000; _f < this.audioContext.sampleRate / 2; _f += 2000) {
+          var x = _f * 1024 / this.audioContext.sampleRate | 0;
+          this.context.fillRect(x, 0, 1, 245);
+          this.context.fillText(_f + "Hz", x - 10, 255);
+        }
       }
     }
   }, {
@@ -649,7 +652,6 @@ var Recording = function (_events) {
     value: function analyze() {
       this.analyser.getFloatFrequencyData(this.data);
       this.analyser.getByteTimeDomainData(this.data2);
-      console.log(this.data, this.data2);
     }
   }, {
     key: 'reset',
