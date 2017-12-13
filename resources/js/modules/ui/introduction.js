@@ -25,7 +25,6 @@ export default class Introduction extends events {
 
   bind() {
     this.$button.addEventListener('click', (e) => {
-      console.log('click');
       e.preventDefault();
       this.hide();
       this.recorder.initialize();

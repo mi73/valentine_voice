@@ -22,7 +22,6 @@ export default class Top extends events {
 
   bind() {
     this.$button.addEventListener('click', (e) => {
-      console.log('click');
       e.preventDefault();
       this.hide();
     });
