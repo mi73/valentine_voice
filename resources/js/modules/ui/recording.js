@@ -58,6 +58,7 @@ export default class Recording extends events {
     });
 
     velocity(this.$a, {
+      translateX: ['-50%', '-50%'],
       translateY: 100,
       opacity: 0,
     }, {
@@ -74,7 +75,6 @@ export default class Recording extends events {
   record() {
 
     this.isRecording = true;
-    console.log('record');
 
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -102,10 +102,9 @@ export default class Recording extends events {
     });
   }
 
-
   stop() {
     this.isRecording = false;
-    this.stream.getAudioTracks()[0].stop();
+    //this.stream.getAudioTracks()[0].stop();
     this.hide();
   }
 

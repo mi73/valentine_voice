@@ -559,6 +559,7 @@ var Recording = function (_events) {
       });
 
       (0, _velocityAnimate2.default)(this.$a, {
+        translateX: ['-50%', '-50%'],
         translateY: 100,
         opacity: 0
       }, {
@@ -577,7 +578,6 @@ var Recording = function (_events) {
       var _this4 = this;
 
       this.isRecording = true;
-      console.log('record');
 
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
@@ -608,7 +608,7 @@ var Recording = function (_events) {
     key: 'stop',
     value: function stop() {
       this.isRecording = false;
-      this.stream.getAudioTracks()[0].stop();
+      //this.stream.getAudioTracks()[0].stop();
       this.hide();
     }
   }, {
