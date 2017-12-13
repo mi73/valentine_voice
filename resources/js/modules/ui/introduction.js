@@ -39,9 +39,7 @@ export default class Introduction extends events {
   }
 
   hide() {
-
-    this.emit('hide');
-
+    
     velocity(this.$h3, {
       translateY: -100,
       opacity: 0,

@@ -417,8 +417,6 @@ var Introduction = function (_events) {
     value: function hide() {
       var _this3 = this;
 
-      this.emit('hide');
-
       (0, _velocityAnimate2.default)(this.$h3, {
         translateY: -100,
         opacity: 0
@@ -720,9 +718,9 @@ var LoveRecorder = function (_events) {
     _this.analyser.fftSize = _this.fftSize;
     _this.analyser.smoothingTimeContant = 0;
 
-    _this.analyser2 = _this.audioContext.createAnalyser();
-    _this.analyser2.fftSize = _this.fftSize;
-    _this.analyser2.smoothingTimeContant = 0.9;
+    // this.analyser2 = this.audioContext.createAnalyser();
+    // this.analyser2.fftSize = this.fftSize;
+    // this.analyser2.smoothingTimeContant = 0.9;
 
     _this.bufsize = _this.analyser.frequencyBinCount;
 
@@ -745,7 +743,7 @@ var LoveRecorder = function (_events) {
         _this2.stream = stream;
         _this2.input = _this2.audioContext.createMediaStreamSource(stream);
         _this2.input.connect(_this2.analyser);
-        _this2.analyser.connect(_this2.analyser2);
+        //this.analyser.connect(this.analyser2);
 
         // this.input.connect(this.filter);
         // this.filter.connect(this.analyser);

@@ -14,9 +14,9 @@ export default class LoveRecorder extends events {
     this.analyser.fftSize = this.fftSize;
     this.analyser.smoothingTimeContant = 0;
 
-    this.analyser2 = this.audioContext.createAnalyser();
-    this.analyser2.fftSize = this.fftSize;
-    this.analyser2.smoothingTimeContant = 0.9;
+    // this.analyser2 = this.audioContext.createAnalyser();
+    // this.analyser2.fftSize = this.fftSize;
+    // this.analyser2.smoothingTimeContant = 0.9;
 
     this.bufsize = this.analyser.frequencyBinCount;
 
@@ -35,7 +35,7 @@ export default class LoveRecorder extends events {
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
       this.input.connect(this.analyser);
-      this.analyser.connect(this.analyser2);
+      //this.analyser.connect(this.analyser2);
 
       // this.input.connect(this.filter);
       // this.filter.connect(this.analyser);
