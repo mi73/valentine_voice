@@ -117,6 +117,7 @@ export default class Recording extends events {
   analyze() {
     this.analyser.getFloatFrequencyData(this.data);
     this.analyser.getFloatTimeDomainData(this.data2);
+    console.log(this.data, this.data2)
   }
 
 
