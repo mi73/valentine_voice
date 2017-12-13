@@ -11,14 +11,14 @@ export default class LoveRecorder extends events {
     this.fftSize = 2048;
 
     this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = this.fftSize;
-    this.analyser.smoothingTimeContant = 0;
+    this.analyser.fftSize = 1024;//this.fftSize;
+    this.analyser.smoothingTimeContant = 0.9;
 
     // this.analyser2 = this.audioContext.createAnalyser();
     // this.analyser2.fftSize = this.fftSize;
     // this.analyser2.smoothingTimeContant = 0.9;
 
-    this.bufsize = this.analyser.frequencyBinCount;
+    this.bufsize = 1024;//this.analyser.frequencyBinCount;
 
     this.frequency= new Float32Array(this.bufsize);
     this.domain = new Uint8Array(this.bufsize);

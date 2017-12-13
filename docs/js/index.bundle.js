@@ -719,14 +719,14 @@ var LoveRecorder = function (_events) {
     _this.fftSize = 2048;
 
     _this.analyser = _this.audioContext.createAnalyser();
-    _this.analyser.fftSize = _this.fftSize;
-    _this.analyser.smoothingTimeContant = 0;
+    _this.analyser.fftSize = 1024; //this.fftSize;
+    _this.analyser.smoothingTimeContant = 0.9;
 
     // this.analyser2 = this.audioContext.createAnalyser();
     // this.analyser2.fftSize = this.fftSize;
     // this.analyser2.smoothingTimeContant = 0.9;
 
-    _this.bufsize = _this.analyser.frequencyBinCount;
+    _this.bufsize = 1024; //this.analyser.frequencyBinCount;
 
     _this.frequency = new Float32Array(_this.bufsize);
     _this.domain = new Uint8Array(_this.bufsize);
