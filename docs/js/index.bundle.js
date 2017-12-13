@@ -112,11 +112,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(64);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(63);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -221,11 +221,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(64);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(63);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -352,11 +352,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(64);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(63);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -471,11 +471,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(64);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(63);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -688,7 +688,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(64);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -741,15 +741,14 @@ var LoveRecorder = function (_events) {
 
       navigator.getUserMedia({ video: false, audio: true }, function (stream) {
         _this2.stream = stream;
+        _this2.audioTrack = stream.getAudioTracks()[0];
+
         _this2.input = _this2.audioContext.createMediaStreamSource(stream);
         _this2.input.connect(_this2.analyser);
         //this.analyser.connect(this.analyser2);
 
         // this.input.connect(this.filter);
         // this.filter.connect(this.analyser);
-
-        _this2.audioTrack = stream.getAudioTracks()[0];
-
         console.log('initialized');
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
@@ -822,7 +821,7 @@ exports.default = LoveRecorder;
 
 /***/ }),
 
-/***/ 50:
+/***/ 64:
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.

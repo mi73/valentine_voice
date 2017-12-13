@@ -33,15 +33,14 @@ export default class LoveRecorder extends events {
 
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
       this.stream = stream;
+      this.audioTrack = stream.getAudioTracks()[0];
+
       this.input = this.audioContext.createMediaStreamSource(stream);
       this.input.connect(this.analyser);
       //this.analyser.connect(this.analyser2);
 
       // this.input.connect(this.filter);
       // this.filter.connect(this.analyser);
-
-      this.audioTrack = stream.getAudioTracks()[0];
-
       console.log('initialized');
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
