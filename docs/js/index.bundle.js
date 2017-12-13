@@ -56,6 +56,7 @@ var Index = function () {
     //
 
     this.loveRecorder = new _LoveRecorder2.default();
+    this.introduction.setRecorder(this.loveRecorder);
 
     window.addEventListener('load', function () {});
 
@@ -77,8 +78,6 @@ var Index = function () {
 
       this.introduction.on('hidden', function () {
         _this.recording1.show();
-      }).on('hide', function () {
-        _this.loveRecorder.initialize();
       });
 
       this.recording1.on('startRecording', function () {
@@ -390,6 +389,11 @@ var Introduction = function (_events) {
     key: 'initialize',
     value: function initialize() {}
   }, {
+    key: 'setRecorder',
+    value: function setRecorder(recorder) {
+      this.recorder = recorder;
+    }
+  }, {
     key: 'bind',
     value: function bind() {
       var _this2 = this;
@@ -398,7 +402,7 @@ var Introduction = function (_events) {
         console.log('click');
         e.preventDefault();
         _this2.hide();
-        _this2.emit('hide');
+        _this2.recorder.initialize();
       });
     }
   }, {
@@ -504,7 +508,12 @@ var Recording = function (_events) {
     _this.canvas = document.getElementById("cvs");
     _this.context = _this.canvas.getContext("2d");
 
+    _this.initialize();
     _this.bind();
+
+    _this.isCountingDown = false;
+    _this.isRecording = false;
+    _this.isRecorded = false;
     return _this;
   }
 
@@ -528,173 +537,140 @@ var Recording = function (_events) {
       var _this2 = this;
 
       this.$a.addEventListener('click', function (e) {
-
-        if (_this2.isRecording) {
-          _this2.stop();
-        } else {
-          _this2.record();
+        if (_this2.isCountingDown) {
+          _this2.stopCountDown();
+        } else if (_this2.isRecording) {
+          _this2.stopRecording();
+        } else if (!_this2.isRecorded) {
+          _this2.startCountDown();
         }
       });
     }
   }, {
-    key: 'record',
-    value: function record() {
+    key: 'startCountDown',
+    value: function startCountDown() {
       var _this3 = this;
 
-      this.isRecording = true;
-      console.log('record');
+      var count = 3;
+      this.isCountingDown = true;
 
-      window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
-      this.audioContext = new AudioContext();
-      this.sampleRate = this.audioContext.sampleRate;
-
-      // this.filter = this.audioContext.createBiquadFilter();
-      // this.filter.type = 0;
-      // this.filter.frequency.value = 20000;
-      this.bufsize = 1024;
-
-      this.data = new Float32Array(this.bufsize);
-      this.data2 = new Float32Array(this.bufsize);
-
-      this.datum = [];
-
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0;
-
-      this.analyser2 = this.audioContext.createAnalyser();
-      this.analyser2.fftSize = 32;
-      this.analyser2.smoothingTimeContant = 0;
-
-      //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
-
-      setInterval(function () {
-        _this3.drawGraph();
-      }, 1000 / 60);
-      // setTimeout(() => {
-      //   this.drawGraph();
-      // }, 3000);
-
-      navigator.getUserMedia({ video: false, audio: true }, function (stream) {
-        console.log("stream" + stream);
-        _this3.stream = stream;
-        _this3.input = _this3.audioContext.createMediaStreamSource(stream);
-
-        // this.input.connect(this.filter);
-        // this.filter.connect(this.analyser);
-
-        _this3.input.connect(_this3.analyser);
-        _this3.input.connect(_this3.analyser2);
-        //this.analyser.connect(this.audioContext.destination);
-        //this.recorder && this.recorder.record();
-      }, function (e) {
-        console.log("No live audio input in this browser: " + e);
-      });
+      this.timer = setInterval(function () {
+        count--;
+        _this3.$a.innerText = count;
+        if (count === 0) {
+          clearInterval(_this3.timer);
+          _this3.startRecording();
+        }
+      }, 1000);
+      this.$a.innerText = count;
     }
   }, {
-    key: 'stop',
-    value: function stop() {
-
-      this.isRecording = false;
-      this.stream.getAudioTracks()[0].stop();
-
-      // this.recorder && this.recorder.stop();
-      // this.recorder && this.recorder.exportWAV((blob) => {
-      //   this.wavExported(blob);
-      // });
+    key: 'stopCountDown',
+    value: function stopCountDown() {
+      clearInterval(this.timer);
+      this.$a.innerText = '録音';
+      this.isCountingDown = false;
     }
-    //
-    // wavExported(blob) {
-    //   console.log(blob);
-    //
-    //   var date = new Date();
-    //   var fname = date.toISOString() + '.wav';
-    //   var timeline = document.querySelector('#timeline');
-    //
-    //   var reader = new FileReader();
-    //   var out = new Blob([blob], {type: 'audio/wav'});
-    //   reader.onload = function (e) {
-    //     var url = reader.result;
-    //
-    //     timeline.innerHTML = '<li>' +
-    //       fname + // date.toLocaleTimeString() +
-    //       ' <a onclick="wavPlay(\'' + url + '\');"><span class="glyphicon glyphicon-play">PLAY</span></a>' +
-    //       ' <a href="' + url + '" download="' + fname + '"><span class="glyphicon glyphicon-save">DOWNLOAD</span></a>' +
-    //       '</li>';
-    //
-    //     recorder.clear();
-    //   };
-    //   reader.readAsDataURL(out);
-    //
-    //   return;
-    //
-    //   var url = URL.createObjectURL(blob);
-    //
-    //   timeline.innerHTML = '<li>' +
-    //     fname + // date.toLocaleTimeString() +
-    //     ' <a onclick="wavPlay(\'' + url + '\');"><span class="glyphicon glyphicon-play">PLAY</span></a>' +
-    //     ' <a href="' + url + '" download="' + fname + '"><span class="glyphicon glyphicon-save">DOWNLOAD</span></a>' +
-    //     '</li>';
-    //
-    //   recorder.clear();
-    // }
+  }, {
+    key: 'startRecording',
+    value: function startRecording() {
+      var _this4 = this;
 
+      this.isRecording = true;
+      this.isCountingDown = false;
+      this.$a.innerText = '録音中';
+      this.emit('startRecording');
 
+      setTimeout(function () {
+        if (!_this4.isRecorded) {
+          _this4.stopRecording();
+        }
+      }, 3000);
+    }
+  }, {
+    key: 'stopRecording',
+    value: function stopRecording() {
+
+      this.isCountingDown = false;
+      this.isRecording = false;
+      this.isRecorded = true;
+      this.$a.innerText = '愛してる';
+      this.emit('stopRecording');
+    }
   }, {
     key: 'drawGraph',
-    value: function drawGraph() {
-      console.log(this.data2);
+    value: function drawGraph(recorder) {
 
-      this.analyze();
+      var width = 1024;
+      var height = 512;
 
-      var width = 512;
+      this.context.clearRect(0, 0, width, height);
 
-      if (this.isRecording) {
-        this.datum.push(this.data.subarray(0, 512));
+      // 白塗り
+      this.context.fillStyle = "#ffffff";
+      this.context.fillRect(0, 0, 1024, 512);
+
+      // 周波数
+      this.context.fillStyle = "#009900";
+      for (var i = 0; i < recorder.frequency.length; ++i) {
+        var y = 128 + (recorder.frequency[i] + 48.16) * 2.56;
+        this.context.fillRect(i * recorder.frequency.length / width, height - y, 1, y);
       }
 
-      this.context.fillStyle = "#000000";
-      this.context.fillRect(0, 0, 512, 256);
-
-      this.context.fillStyle = "#009900aa";
-      for (var i = 0; i < 512; ++i) {
-        var y = 128 + (this.data[i] + 48.16) * 2.56;
-        this.context.fillRect(i, 256 - y, 1, y);
-      }
-
-      this.context.fillStyle = "#990000aa";
-      for (var _i = 0; _i < 32; ++_i) {
-        var _y = 128 + (this.data2[_i] + 48.16) * 2.56;
-        this.context.fillRect(_i * 32, 256 - _y, 512 / 32, _y);
-      }
+      this.context.fillStyle = "rgb(153,36,95)";
+      // for (let i = 0; i < 32; ++i) {
+      //   let y = 128 + (this.data2[i] + 48.16) * 2.56;
+      //   this.context.fillRect(i * 32, 256 - y, 512/32, y);
+      // }
 
       // GRID
-      this.context.fillStyle = "#ff8844";
-      for (var d = -50; d < 50; d += 10) {
-        var _y2 = 128 - d * 256 / 100 | 0;
-        this.context.fillRect(20, _y2, 512, 1);
-        this.context.fillText(d + "dB", 5, _y2);
-      }
+      // this.context.fillStyle = "#ff8844";
+      // for (let d = -50; d < 50; d += 10) {
+      //   let y = 128 - (d * 256 / 100) | 0;
+      //   this.context.fillRect(20, y, 512, 1);
+      //   this.context.fillText(d + "dB", 5, y);
+      // }
 
       // Hz
-      this.context.fillRect(20, 128, 512, 1);
-      for (var f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
-        var x = f * 1024 / this.audioContext.sampleRate | 0;
-        this.context.fillRect(x, 0, 1, 245);
-        this.context.fillText(f + "Hz", x - 10, 255);
+      // this.context.fillRect(20, 128, 512, 1);
+      // for (let f = 2000; f < this.audioContext.sampleRate / 2; f += 2000) {
+      //   let x = (f * 1024 / this.audioContext.sampleRate) | 0;
+      //   this.context.fillRect(x, 0, 1, 245);
+      //   this.context.fillText(f + "Hz", x - 10, 255);
+      // }
+
+      // line
+      this.context.strokeStyle = 'rgb(87,34,255)';
+      this.context.beginPath();
+      this.context.moveTo(0, 256);
+      var averageLength = recorder.averages.length;
+      for (var _i = 0; _i < averageLength; ++_i) {
+        //let y = 128 + (this.averages[i] + 48.16) * 2.56;
+        //this.context.lineTo(i * 512 / averageLength, 256 - y);
+        //this.context.lineTo(i * 512 / averageLength, 128 + this.averages[i] * 5124);
+        var _y = recorder.averages[_i] * 2;
+        this.context.lineTo(_i * width / averageLength, _y);
       }
+      this.context.stroke();
+
+      this.context.lineWidth = 0.4;
+      this.context.globalAlpha = 0.3;
+
+      var frequencyLength = recorder.domains[0].length;
+
+      for (var j = 0; j < frequencyLength / 4; j += 4) {
+        //console.log(`rgb(${Math.floor(87 + 66 * j / frequencyLength)},${Math.floor(34 + 2 * j / frequencyLength)},${Math.floor(255 - 160 * j / frequencyLength)})`);
+        this.context.strokeStyle = 'rgb(' + Math.floor(255 - 160 * j / frequencyLength) + ',' + Math.floor(34 + 2 * j / frequencyLength) + ',' + Math.floor(87 + 166 * j / frequencyLength) + ')'; //153,36,95
+        this.context.beginPath();
+        this.context.moveTo(0, 256);
+        for (var _i2 = 0; _i2 < recorder.domains.length; ++_i2) {
+          var _y2 = recorder.domains[_i2][j] * 2;
+          this.context.lineTo(_i2 * width / recorder.domains.length, _y2);
+        }
+        this.context.stroke();
+      }
+      this.context.globalAlpha = 1;
     }
-  }, {
-    key: 'analyze',
-    value: function analyze() {
-      this.analyser.getFloatFrequencyData(this.data);
-      this.analyser2.getFloatFrequencyData(this.data2);
-      //this.analyser.getFloatTimeDomainData(this.data);
-    }
-  }, {
-    key: 'reset',
-    value: function reset() {}
   }]);
 
   return Recording;
@@ -731,7 +707,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var LoveRecorder = function (_events) {
   _inherits(LoveRecorder, _events);
 
-  function LoveRecorder(selector) {
+  function LoveRecorder() {
     _classCallCheck(this, LoveRecorder);
 
     var _this = _possibleConstructorReturn(this, (LoveRecorder.__proto__ || Object.getPrototypeOf(LoveRecorder)).call(this));
@@ -767,7 +743,11 @@ var LoveRecorder = function (_events) {
     value: function initialize() {
       var _this2 = this;
 
+      console.log('LoveRecorder::initialize', this);
+
       navigator.getUserMedia({ video: false, audio: true }, function (stream) {
+        console.log('LoveRecorder::initialized', _this2);
+
         _this2.stream = stream;
         _this2.audioTrack = stream.getAudioTracks()[0];
 
@@ -777,7 +757,6 @@ var LoveRecorder = function (_events) {
 
         // this.input.connect(this.filter);
         // this.filter.connect(this.analyser);
-        console.log('initialized');
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
       });
@@ -785,12 +764,15 @@ var LoveRecorder = function (_events) {
   }, {
     key: 'startRecording',
     value: function startRecording() {
+      console.log('LoveRecorder::startRecording', this);
+
       this.isRecording = true;
       this.startAnalyze();
     }
   }, {
     key: 'stopRecording',
     value: function stopRecording() {
+      console.log('LoveRecorder::stopRecording', this);
       this.isRecording = false;
       //this.audioTrack.stop();
     }
@@ -798,6 +780,8 @@ var LoveRecorder = function (_events) {
     key: 'startAnalyze',
     value: function startAnalyze() {
       var _this3 = this;
+
+      console.log('LoveRecorder::startAnalyze', this);
 
       var frame = function frame() {
         if (_this3.isRecording) {

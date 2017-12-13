@@ -19,12 +19,16 @@ export default class Introduction extends events {
 
   }
 
+  setRecorder(recorder) {
+    this.recorder = recorder;
+  }
+
   bind() {
     this.$button.addEventListener('click', (e) => {
       console.log('click');
       e.preventDefault();
       this.hide();
-      this.emit('hide');
+      this.recorder.initialize();
     });
   }
 

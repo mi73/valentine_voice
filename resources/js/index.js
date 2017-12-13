@@ -21,6 +21,7 @@ class Index {
     //
 
     this.loveRecorder = new LoveRecorder;
+    this.introduction.setRecorder(this.loveRecorder);
 
     window.addEventListener('load', () => {
 
@@ -41,8 +42,6 @@ class Index {
 
     this.introduction.on('hidden', () => {
       this.recording1.show();
-    }).on('hide', () => {
-      this.loveRecorder.initialize();
     });
 
     this.recording1.on('startRecording', () => {

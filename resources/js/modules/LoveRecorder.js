@@ -1,7 +1,7 @@
 import events from 'events';
 
 export default class LoveRecorder extends events {
-  constructor(selector) {
+  constructor() {
     super();
 
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -31,7 +31,11 @@ export default class LoveRecorder extends events {
 
   initialize() {
 
+    console.log('LoveRecorder::initialize', this);
+
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
+      console.log('LoveRecorder::initialized', this);
+
       this.stream = stream;
       this.audioTrack = stream.getAudioTracks()[0];
 
@@ -41,23 +45,26 @@ export default class LoveRecorder extends events {
 
       // this.input.connect(this.filter);
       // this.filter.connect(this.analyser);
-      console.log('initialized');
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
     });
   }
 
   startRecording() {
+    console.log('LoveRecorder::startRecording', this);
+
     this.isRecording = true;
     this.startAnalyze();
   }
 
   stopRecording() {
+    console.log('LoveRecorder::stopRecording', this);
     this.isRecording = false;
     //this.audioTrack.stop();
   }
 
   startAnalyze() {
+    console.log('LoveRecorder::startAnalyze', this);
 
     const frame = () => {
       if (this.isRecording) {
