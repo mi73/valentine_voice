@@ -58,18 +58,14 @@ export default class Recording extends events {
     this.filter.frequency.value = 20000;
     this.bufsize = 1024;
     this.data = new Float32Array(this.bufsize);
+    this.data2 = new Uint8Array(this.bufsize);
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = this.bufsize;
     this.analyser.smoothingTimeContant = 0.9;
 
-    //this.recorder = new Recorder(this.filter, {workerPath: 'js/recorderjs/recorderWorker.js'});
-
     setInterval(() => {
       this.drawGraph();
     }, 1000 / 60);
-    // setTimeout(() => {
-    //   this.drawGraph();
-    // }, 3000);
 
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
       console.log("stream" + stream);
@@ -78,8 +74,7 @@ export default class Recording extends events {
       //input.connect(analyser);
       this.input.connect(this.filter);
       this.filter.connect(this.analyser);
-      this.analyser.connect(this.audioContext.destination);
-      //this.recorder && this.recorder.record();
+      //this.analyser.connect(this.audioContext.destination);
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
     });
@@ -87,55 +82,11 @@ export default class Recording extends events {
 
 
   stop() {
-
     this.isRecording = false;
     this.stream.getAudioTracks()[0].stop();
-
-    // this.recorder && this.recorder.stop();
-    // this.recorder && this.recorder.exportWAV((blob) => {
-    //   this.wavExported(blob);
-    // });
   }
-  //
-  // wavExported(blob) {
-  //   console.log(blob);
-  //
-  //   var date = new Date();
-  //   var fname = date.toISOString() + '.wav';
-  //   var timeline = document.querySelector('#timeline');
-  //
-  //   var reader = new FileReader();
-  //   var out = new Blob([blob], {type: 'audio/wav'});
-  //   reader.onload = function (e) {
-  //     var url = reader.result;
-  //
-  //     timeline.innerHTML = '<li>' +
-  //       fname + // date.toLocaleTimeString() +
-  //       ' <a onclick="wavPlay(\'' + url + '\');"><span class="glyphicon glyphicon-play">PLAY</span></a>' +
-  //       ' <a href="' + url + '" download="' + fname + '"><span class="glyphicon glyphicon-save">DOWNLOAD</span></a>' +
-  //       '</li>';
-  //
-  //     recorder.clear();
-  //   };
-  //   reader.readAsDataURL(out);
-  //
-  //   return;
-  //
-  //   var url = URL.createObjectURL(blob);
-  //
-  //   timeline.innerHTML = '<li>' +
-  //     fname + // date.toLocaleTimeString() +
-  //     ' <a onclick="wavPlay(\'' + url + '\');"><span class="glyphicon glyphicon-play">PLAY</span></a>' +
-  //     ' <a href="' + url + '" download="' + fname + '"><span class="glyphicon glyphicon-save">DOWNLOAD</span></a>' +
-  //     '</li>';
-  //
-  //   recorder.clear();
-  // }
-
 
   drawGraph() {
-    //console.log(this.data);
-
     this.analyze();
 
     this.context.fillStyle = "#000000";
@@ -165,7 +116,7 @@ export default class Recording extends events {
 
   analyze() {
     this.analyser.getFloatFrequencyData(this.data);
-    //this.analyser.getFloatTimeDomainData(this.data);
+    this.analyser.getFloatTimeDomainData(this.data2);
   }
 
 
