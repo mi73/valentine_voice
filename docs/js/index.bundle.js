@@ -616,7 +616,7 @@ var Recording = function (_events) {
     key: 'analyze',
     value: function analyze() {
       this.analyser.getFloatFrequencyData(this.data);
-      this.analyser.getFloatTimeDomainData(this.data2);
+      this.analyser.getByteTimeDomainData(this.data2);
       console.log(this.data, this.data2);
     }
   }, {
