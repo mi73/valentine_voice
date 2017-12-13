@@ -589,7 +589,7 @@ var Recording = function (_events) {
       this.data2 = new Uint8Array(this.bufsize);
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0.9;
+      this.analyser.smoothingTimeContant = 0.1;
 
       setInterval(function () {
         _this4.drawGraph();
@@ -599,10 +599,7 @@ var Recording = function (_events) {
         console.log("stream" + stream);
         _this4.stream = stream;
         _this4.input = _this4.audioContext.createMediaStreamSource(stream);
-        //input.connect(analyser);
         _this4.input.connect(_this4.analyser);
-        //this.filter.connect(this.analyser);
-        //this.analyser.connect(this.audioContext.destination);
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
       });
@@ -612,38 +609,33 @@ var Recording = function (_events) {
     value: function stop() {
       this.isRecording = false;
       this.stream.getAudioTracks()[0].stop();
-
       this.hide();
     }
   }, {
     key: 'drawGraph',
     value: function drawGraph() {
 
+      var width = 1024;
+      var height = 512;
+
       if (this.isRecording) {
 
         this.analyze();
-        this.context.fillStyle = "#000000";
-        this.context.fillRect(0, 0, 512, 256);
+
+        this.context.fillStyle = "#fff";
+        this.context.fillRect(0, 0, width, height);
+
         this.context.fillStyle = "#009900";
 
         for (var i = 0; i < 512; ++i) {
-          var f = this.audioContext.sampleRate * i / 1024;
           var y = 128 + (this.data[i] + 48.16) * 2.56;
-          this.context.fillRect(i, 256 - y, 1, y);
+          this.context.fillRect(i * 2, height - y, 2, y);
         }
 
-        this.context.fillStyle = "#ff8844";
-        for (var d = -50; d < 50; d += 10) {
-          var _y = 128 - d * 256 / 100 | 0;
-          this.context.fillRect(20, _y, 512, 1);
-          this.context.fillText(d + "dB", 5, _y);
-        }
-
-        this.context.fillRect(20, 128, 512, 1);
-        for (var _f = 2000; _f < this.audioContext.sampleRate / 2; _f += 2000) {
-          var x = _f * 1024 / this.audioContext.sampleRate | 0;
-          this.context.fillRect(x, 0, 1, 245);
-          this.context.fillText(_f + "Hz", x - 10, 255);
+        this.context.fillStyle = "#99044f";
+        for (var _i = 0; _i < 512; ++_i) {
+          var _y = this.data2[_i] * 2 - height / 2;
+          this.context.fillRect(_i * 2, height / 2, 2, _y);
         }
       }
     }

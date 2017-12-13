@@ -2,6 +2,8 @@ extends modules/_layout
 
 block content
 
+  canvas#cvs(width=1024 height=512 style='margin-top: 60px;')
+
   section.loading
     h2 Taste your love
     .loading__gauge
@@ -51,5 +53,3 @@ block content
   section.result
   .terms
   .campaign
-
-  canvas#cvs(width=1024 height=512 style='margin-top: 60px;')
