@@ -11,7 +11,7 @@ html(lang='ja')
 
     include _header
 
-    p.version(style='margin: 60px 0; font-size: 30px')= new Date().getTime()
+    p.version(style='position: absolute; left: 0; top: 0; color: white; font-size: 20px')= 'rev:' + new Date().getTime()%10000
 
     block content
 
