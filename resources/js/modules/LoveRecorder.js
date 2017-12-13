@@ -60,19 +60,18 @@ export default class LoveRecorder extends events {
   stopRecording() {
     console.log('LoveRecorder::stopRecording', this);
     this.isRecording = false;
+    clearInterval(this.timer);
     //this.audioTrack.stop();
   }
 
   startAnalyze() {
     console.log('LoveRecorder::startAnalyze', this);
 
-    const frame = () => {
+    this.timer = setInterval(() => {
       if (this.isRecording) {
-        requestAnimationFrame(frame);
         this.analyze();
       }
-    };
-    frame();
+    }, 1000 / 60);
   }
 
   analyze() {

@@ -774,6 +774,7 @@ var LoveRecorder = function (_events) {
     value: function stopRecording() {
       console.log('LoveRecorder::stopRecording', this);
       this.isRecording = false;
+      clearInterval(this.timer);
       //this.audioTrack.stop();
     }
   }, {
@@ -783,13 +784,11 @@ var LoveRecorder = function (_events) {
 
       console.log('LoveRecorder::startAnalyze', this);
 
-      var frame = function frame() {
+      this.timer = setInterval(function () {
         if (_this3.isRecording) {
-          requestAnimationFrame(frame);
           _this3.analyze();
         }
-      };
-      frame();
+      }, 1000 / 60);
     }
   }, {
     key: 'analyze',
