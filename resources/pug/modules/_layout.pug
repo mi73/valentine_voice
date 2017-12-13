@@ -11,6 +11,8 @@ html(lang='ja')
 
     include _header
 
+    p.version(style='margin: 60px 0; font-size: 30px')= new Date().getTime()
+
     block content
 
     include _footer
