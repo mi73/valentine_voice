@@ -41,7 +41,7 @@ class Index {
 
     this.introduction.on('hidden', () => {
       this.recording1.show();
-    }).on('hide', (stream) => {
+    }).on('hide', () => {
       this.loveRecorder.initialize();
     });
 

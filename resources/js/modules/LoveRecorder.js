@@ -55,7 +55,7 @@ export default class LoveRecorder extends events {
 
   stopRecording() {
     this.isRecording = false;
-    this.audioTrack.stop();
+    //this.audioTrack.stop();
   }
 
   startAnalyze() {

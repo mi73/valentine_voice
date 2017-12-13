@@ -77,7 +77,7 @@ var Index = function () {
 
       this.introduction.on('hidden', function () {
         _this.recording1.show();
-      }).on('hide', function (stream) {
+      }).on('hide', function () {
         _this.loveRecorder.initialize();
       });
 
@@ -765,7 +765,7 @@ var LoveRecorder = function (_events) {
     key: 'stopRecording',
     value: function stopRecording() {
       this.isRecording = false;
-      this.audioTrack.stop();
+      //this.audioTrack.stop();
     }
   }, {
     key: 'startAnalyze',
