@@ -16,6 +16,7 @@ class Index {
     this.top = new Top('.top');
     this.introduction = new Introduction('.introduction');
     this.recording1 = new Recording('.recording1');
+    this.recording2 = new Recording('.recording2');
      // this.loading.hide();
      // this.recording1.show();
     //
@@ -48,6 +49,8 @@ class Index {
       this.loveRecorder.startRecording()
     }).on('stopRecording', () => {
       this.loveRecorder.stopRecording();
+    }).on('hidden', () => {
+      this.recording2.show();
     });
 
     this.loveRecorder.on('getData', () => {

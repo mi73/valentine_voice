@@ -43,6 +43,34 @@ export default class Recording extends events {
     });
   }
 
+  hide() {
+    this.emit('hide');
+
+    velocity(this.$p, {
+      translateY: -100,
+      opacity: 0,
+    }, {
+      queue: false,
+      duration: 800,
+      easing: 'easeInQuart',
+      complete: () => {
+      },
+    });
+
+    velocity(this.$a, {
+      translateY: 100,
+      opacity: 0,
+    }, {
+      queue: false,
+      duration: 800,
+      easing: 'easeInQuart',
+      complete: () => {
+        this.$.style.display = 'none';
+        this.emit('hidden');
+      },
+    });
+  }
+
   record() {
 
     this.isRecording = true;
@@ -53,9 +81,6 @@ export default class Recording extends events {
     this.audioContext = new AudioContext();
     this.sampleRate = this.audioContext.sampleRate;
 
-    this.filter = this.audioContext.createBiquadFilter();
-    this.filter.type = 0;
-    this.filter.frequency.value = 20000;
     this.bufsize = 1024;
     this.data = new Float32Array(this.bufsize);
     this.data2 = new Uint8Array(this.bufsize);
@@ -72,8 +97,8 @@ export default class Recording extends events {
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
       //input.connect(analyser);
-      this.input.connect(this.filter);
-      this.filter.connect(this.analyser);
+      this.input.connect(this.analyser);
+      //this.filter.connect(this.analyser);
       //this.analyser.connect(this.audioContext.destination);
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
@@ -84,6 +109,8 @@ export default class Recording extends events {
   stop() {
     this.isRecording = false;
     this.stream.getAudioTracks()[0].stop();
+
+    this.hide();
   }
 
   drawGraph() {
