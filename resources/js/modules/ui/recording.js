@@ -88,7 +88,7 @@ export default class Recording extends events {
     this.analyser.fftSize = this.bufsize;
     this.analyser.smoothingTimeContant = 0.1;
 
-    setInterval(() => {
+    this.timer = setInterval(() => {
       this.drawGraph();
     }, 1000 / 60);
 
@@ -104,6 +104,7 @@ export default class Recording extends events {
 
   stop() {
     this.isRecording = false;
+    clearInterval(this.timer);
     //this.stream.getAudioTracks()[0].stop();
     this.hide();
   }

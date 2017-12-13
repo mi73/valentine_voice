@@ -591,7 +591,7 @@ var Recording = function (_events) {
       this.analyser.fftSize = this.bufsize;
       this.analyser.smoothingTimeContant = 0.1;
 
-      setInterval(function () {
+      this.timer = setInterval(function () {
         _this4.drawGraph();
       }, 1000 / 60);
 
@@ -608,6 +608,7 @@ var Recording = function (_events) {
     key: 'stop',
     value: function stop() {
       this.isRecording = false;
+      clearInterval(this.timer);
       //this.stream.getAudioTracks()[0].stop();
       this.hide();
     }
