@@ -112,7 +112,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -221,7 +221,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -352,7 +352,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -473,7 +473,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -690,7 +690,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -745,7 +745,7 @@ var LoveRecorder = function (_events) {
         _this2.stream = stream;
         _this2.input = _this2.audioContext.createMediaStreamSource(stream);
         _this2.input.connect(_this2.analyser);
-        _this2.input.connect(_this2.analyser2);
+        _this2.analyser.connect(_this2.analyser2);
 
         // this.input.connect(this.filter);
         // this.filter.connect(this.analyser);
@@ -789,6 +789,8 @@ var LoveRecorder = function (_events) {
       this.analyser.getFloatFrequencyData(this.frequency);
       this.analyser.getByteTimeDomainData(this.domain);
 
+      console.log(this.frequency, this.domain);
+
       if (this.isRecording && this.domain[0] > -1000) {
 
         console.log(this.frequency);
@@ -822,7 +824,7 @@ exports.default = LoveRecorder;
 
 /***/ }),
 
-/***/ 64:
+/***/ 50:
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.

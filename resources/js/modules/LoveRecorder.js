@@ -35,7 +35,7 @@ export default class LoveRecorder extends events {
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
       this.input.connect(this.analyser);
-      this.input.connect(this.analyser2);
+      this.analyser.connect(this.analyser2);
 
       // this.input.connect(this.filter);
       // this.filter.connect(this.analyser);
@@ -73,6 +73,8 @@ export default class LoveRecorder extends events {
 
     this.analyser.getFloatFrequencyData(this.frequency);
     this.analyser.getByteTimeDomainData(this.domain);
+
+    console.log(this.frequency, this.domain);
 
     if (this.isRecording && this.domain[0] > -1000) {
 
