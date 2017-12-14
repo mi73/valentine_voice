@@ -514,7 +514,19 @@ var Recording = function (_events) {
     _this.isRecording = false;
     _this.isRendering = true;
 
+    _this.audioContext = new AudioContext();
+    _this.sampleRate = _this.audioContext.sampleRate;
     _this.bufsize = 1024;
+
+    _this.filter = _this.audioContext.createBiquadFilter();
+    _this.filter.type = 'bandpass';
+    _this.filter.frequency.value = 2000;
+    _this.filter.Q.value = 0.3;
+
+    _this.analyser = _this.audioContext.createAnalyser();
+    _this.analyser.fftSize = _this.bufsize;
+    _this.analyser.smoothingTimeContant = 0.1;
+
     _this.frequency = new Uint8Array(_this.bufsize);
     _this.noise = new Uint8Array(_this.bufsize);
     _this.frequencys = [];
@@ -526,6 +538,16 @@ var Recording = function (_events) {
   }
 
   _createClass(Recording, [{
+    key: 'upDateFilter',
+    value: function upDateFilter() {
+      console.log('U');
+      this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
+      //this.filter.type = document.getElementById("type").selectedIndex;
+      this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
+      this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
+      this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
+    }
+  }, {
     key: 'initialize',
     value: function initialize() {
       for (var i = 0; i < this.bufsize; i++) {
@@ -560,6 +582,19 @@ var Recording = function (_events) {
 
       this.$next.addEventListener('click', function () {
         _this2.hide();
+      });
+
+      document.querySelector('#filter').addEventListener('change', function () {
+        _this2.upDateFilter();
+      });
+      document.querySelector('#freq').addEventListener('change', function () {
+        _this2.upDateFilter();
+      });
+      document.querySelector('#q').addEventListener('change', function () {
+        _this2.upDateFilter();
+      });
+      document.querySelector('#gain').addEventListener('change', function () {
+        _this2.upDateFilter();
       });
     }
   }, {
@@ -617,13 +652,6 @@ var Recording = function (_events) {
     value: function record() {
       var _this4 = this;
 
-      this.audioContext = new AudioContext();
-      this.sampleRate = this.audioContext.sampleRate;
-
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0.1;
-
       this.timer = setInterval(function () {
         _this4.drawGraph();
       }, 1000 / 60);
@@ -632,7 +660,8 @@ var Recording = function (_events) {
         console.log("stream" + stream);
         _this4.stream = stream;
         _this4.input = _this4.audioContext.createMediaStreamSource(stream);
-        _this4.input.connect(_this4.analyser);
+        _this4.input.connect(_this4.filter);
+        _this4.filter.connect(_this4.analyser);
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
       });

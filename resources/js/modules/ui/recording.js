@@ -18,7 +18,19 @@ export default class Recording extends events {
     this.isRecording = false;
     this.isRendering = true;
 
+    this.audioContext = new AudioContext();
+    this.sampleRate = this.audioContext.sampleRate;
     this.bufsize = 1024;
+
+    this.filter = this.audioContext.createBiquadFilter();
+    this.filter.type = 'bandpass';
+    this.filter.frequency.value = 2000;
+    this.filter.Q.value = 0.3;
+
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = this.bufsize;
+    this.analyser.smoothingTimeContant = 0.1;
+
     this.frequency = new Uint8Array(this.bufsize);
     this.noise = new Uint8Array(this.bufsize);
     this.frequencys = [];
@@ -26,6 +38,15 @@ export default class Recording extends events {
 
     this.initialize();
     this.bind();
+  }
+
+  upDateFilter() {
+    console.log('U')
+    this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
+    //this.filter.type = document.getElementById("type").selectedIndex;
+    this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
+    this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
+    this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
   }
 
   initialize() {
@@ -58,6 +79,11 @@ export default class Recording extends events {
     this.$next.addEventListener('click', () => {
       this.hide();
     });
+
+    document.querySelector('#filter').addEventListener('change', () => { this.upDateFilter() });
+    document.querySelector('#freq').addEventListener('change', () => { this.upDateFilter() });
+    document.querySelector('#q').addEventListener('change', () => { this.upDateFilter() });
+    document.querySelector('#gain').addEventListener('change', () => { this.upDateFilter() });
   }
 
   hide() {
@@ -108,12 +134,6 @@ export default class Recording extends events {
   }
 
   record() {
-    this.audioContext = new AudioContext();
-    this.sampleRate = this.audioContext.sampleRate;
-
-    this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = this.bufsize;
-    this.analyser.smoothingTimeContant = 0.1;
 
     this.timer = setInterval(() => {
       this.drawGraph();
@@ -123,7 +143,8 @@ export default class Recording extends events {
       console.log("stream" + stream);
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
-      this.input.connect(this.analyser);
+      this.input.connect(this.filter);
+      this.filter.connect(this.analyser);
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
     });
