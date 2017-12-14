@@ -493,8 +493,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
 var Recording = function (_events) {
   _inherits(Recording, _events);
 
@@ -535,9 +533,11 @@ var Recording = function (_events) {
   }, {
     key: 'upDateFilter',
     value: function upDateFilter() {
-      console.log('U');
+      if (!this.filter) return;
+
+      console.log('U', this.filter);
+
       this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
-      //this.filter.type = document.getElementById("type").selectedIndex;
       this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
       this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
       this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
@@ -647,12 +647,13 @@ var Recording = function (_events) {
       navigator.getUserMedia({ video: false, audio: true }, function (stream) {
         console.log("stream" + stream);
 
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
         _this4.audioContext = new AudioContext();
         _this4.sampleRate = _this4.audioContext.sampleRate;
 
-        // this.filter = audioContext.createBiquadFilter();
-        // this.filter.type = 0;
-        // this.filter.frequency.value = 20000;
+        _this4.filter = _this4.audioContext.createBiquadFilter();
+        _this4.filter.type = 0;
+        _this4.filter.frequency.value = 20000;
 
         _this4.analyser = _this4.audioContext.createAnalyser();
         _this4.analyser.fftSize = _this4.bufsize;
@@ -660,10 +661,10 @@ var Recording = function (_events) {
 
         _this4.stream = stream;
         _this4.input = _this4.audioContext.createMediaStreamSource(stream);
-        // this.input.connect(this.filter);
-        // this.filter.connect(this.analyser);
+        _this4.input.connect(_this4.filter);
+        _this4.filter.connect(_this4.analyser);
 
-        _this4.input.connect(_this4.analyser);
+        //this.input.connect(this.analyser);
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
       });

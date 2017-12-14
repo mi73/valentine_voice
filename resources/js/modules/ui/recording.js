@@ -1,8 +1,6 @@
 import events from 'events';
 import velocity from 'velocity-animate';
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
 export default class Recording extends events {
   constructor(selector) {
     super();
@@ -35,9 +33,11 @@ export default class Recording extends events {
   }
 
   upDateFilter() {
-    console.log('U')
+    if (!this.filter) return;
+
+    console.log('U', this.filter);
+
     this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
-    //this.filter.type = document.getElementById("type").selectedIndex;
     this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
     this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
     this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
@@ -130,12 +130,13 @@ export default class Recording extends events {
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
       console.log("stream" + stream);
 
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
       this.audioContext = new AudioContext();
       this.sampleRate = this.audioContext.sampleRate;
 
-      // this.filter = audioContext.createBiquadFilter();
-      // this.filter.type = 0;
-      // this.filter.frequency.value = 20000;
+      this.filter = this.audioContext.createBiquadFilter();
+      this.filter.type = 0;
+      this.filter.frequency.value = 20000;
 
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = this.bufsize;
@@ -143,10 +144,10 @@ export default class Recording extends events {
 
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
-      // this.input.connect(this.filter);
-      // this.filter.connect(this.analyser);
+      this.input.connect(this.filter);
+      this.filter.connect(this.analyser);
 
-      this.input.connect(this.analyser);
+      //this.input.connect(this.analyser);
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
     });
