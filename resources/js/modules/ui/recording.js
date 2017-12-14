@@ -1,8 +1,6 @@
 import events from 'events';
 import velocity from 'velocity-animate';
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
 export default class Recording extends events {
   constructor(selector) {
     super();
@@ -17,19 +15,6 @@ export default class Recording extends events {
 
     this.isRecording = false;
     this.isRendering = true;
-
-    this.audioContext = new AudioContext();
-    this.sampleRate = this.audioContext.sampleRate;
-    this.bufsize = 1024;
-
-    this.filter = this.audioContext.createBiquadFilter();
-    this.filter.type = 'bandpass';
-    this.filter.frequency.value = 2000;
-    this.filter.Q.value = 0.3;
-
-    this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = this.bufsize;
-    this.analyser.smoothingTimeContant = 0.1;
 
     this.frequency = new Uint8Array(this.bufsize);
     this.noise = new Uint8Array(this.bufsize);
@@ -134,6 +119,20 @@ export default class Recording extends events {
   }
 
   record() {
+
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    this.audioContext = new AudioContext();
+    this.sampleRate = this.audioContext.sampleRate;
+    this.bufsize = 1024;
+
+    this.filter = this.audioContext.createBiquadFilter();
+    this.filter.type = 'bandpass';
+    this.filter.frequency.value = 2000;
+    this.filter.Q.value = 0.3;
+
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = this.bufsize;
+    this.analyser.smoothingTimeContant = 0.1;
 
     this.timer = setInterval(() => {
       this.drawGraph();
