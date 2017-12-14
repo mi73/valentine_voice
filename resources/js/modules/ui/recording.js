@@ -1,6 +1,7 @@
-
 import events from 'events';
 import velocity from 'velocity-animate';
+
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 export default class Recording extends events {
   constructor(selector) {
@@ -8,18 +9,29 @@ export default class Recording extends events {
 
     this.$ = document.querySelector(selector);
     this.$p = this.$.querySelector('p');
-    this.$a = this.$.querySelector('a');
-
-    this.isRecording = false;
+    this.$record = this.$.querySelector('.recording__button');
+    this.$next = this.$.querySelector('.recording__next');
 
     this.canvas = document.getElementById("cvs");
     this.context = this.canvas.getContext("2d");
 
+    this.isRecording = false;
+    this.isRendering = true;
+
+    this.bufsize = 1024;
+    this.frequency = new Uint8Array(this.bufsize);
+    this.noise = new Uint8Array(this.bufsize);
+    this.frequencys = [];
+    this.domain = new Uint8Array(this.bufsize);
+
+    this.initialize();
     this.bind();
   }
 
   initialize() {
-
+    for (let i = 0; i < this.bufsize; i++) {
+      this.noise[i] = 0.0;
+    }
   }
 
   show() {
@@ -33,13 +45,18 @@ export default class Recording extends events {
   }
 
   bind() {
-    this.$a.addEventListener('click', (e) => {
+    this.$record.addEventListener('click', (e) => {
 
       if (this.isRecording) {
         this.stop();
       } else {
         this.record();
+        this.startCountDown();
       }
+    });
+
+    this.$next.addEventListener('click', () => {
+      this.hide();
     });
   }
 
@@ -57,8 +74,7 @@ export default class Recording extends events {
       },
     });
 
-    velocity(this.$a, {
-      translateX: ['-50%', '-50%'],
+    velocity(this.$next, {
       translateY: 100,
       opacity: 0,
     }, {
@@ -72,18 +88,29 @@ export default class Recording extends events {
     });
   }
 
+  changeToNext() {
+
+    velocity(this.$record, {
+      translateX: ['-50%', '-50%'],
+      opacity: 0,
+    }, {
+      display: 'none',
+      duration: 400,
+    });
+
+    velocity(this.$next, {
+      opacity: [1, 0],
+    }, {
+      display: 'block',
+      delay: 400,
+      duration: 1000,
+    });
+  }
+
   record() {
-
-    this.isRecording = true;
-
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
     this.audioContext = new AudioContext();
     this.sampleRate = this.audioContext.sampleRate;
 
-    this.bufsize = 1024;
-    this.data = new Float32Array(this.bufsize);
-    this.data2 = new Uint8Array(this.bufsize);
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = this.bufsize;
     this.analyser.smoothingTimeContant = 0.1;
@@ -102,11 +129,41 @@ export default class Recording extends events {
     });
   }
 
+  startCountDown() {
+    let count = 3;
+    this.isCalibrating = true;
+    this.isRendering = true;
+
+    clearInterval(this.interval);
+    this.interval = setInterval(() => {
+      count--;
+      if (count === 0) {
+        clearInterval(this.interval);
+        this.$record.innerText = '愛してる';
+
+        this.calculateNoise();
+        this.isCalibrating = false;
+        this.isRecording = true;
+
+      } else {
+        this.$record.innerText = count;
+      }
+    }, 1000);
+    this.$record.innerText = count;
+
+    setTimeout(() => {
+      if (this.isRecording) {
+        //this.stop();
+      }
+    }, 6000);
+  }
+
   stop() {
+
     this.isRecording = false;
     clearInterval(this.timer);
     //this.stream.getAudioTracks()[0].stop();
-    this.hide();
+    this.changeToNext();
   }
 
   drawGraph() {
@@ -114,7 +171,7 @@ export default class Recording extends events {
     const width = 1024;
     const height = 512;
 
-    if (this.isRecording) {
+    if (this.isRendering) {
 
       this.analyze();
 
@@ -124,22 +181,54 @@ export default class Recording extends events {
       this.context.fillStyle = "#009900";
 
       for (let i = 0; i < 512; ++i) {
-        let y = 128 + (this.data[i] + 48.16) * 2.56;
+        let y = (this.frequency[i] - this.noise[i]) * 2;
         this.context.fillRect(i * 2, height - y, 2, y);
       }
 
       this.context.fillStyle = "#99044f";
       for (let i = 0; i < 512; ++i) {
-        let y = this.data2[i] * 2 - height / 2;
+        let y = this.domain[i] * 2 - height / 2;
         this.context.fillRect(i * 2, height / 2, 2, y);
       }
+    }
 
+    if (this.isCalibrating) {
+      this.addFrequency();
+    }
+  }
+
+  addFrequency() {
+    const copyData = new Uint8Array(this.frequency.length);
+    copyData.set(this.frequency);
+    this.frequencys.push(copyData);
+  }
+
+  calculateNoise() {
+
+    const sum = new Float32Array(this.bufsize);
+
+    for (let i = 0; i < this.bufsize; i++) {
+      sum[i] = 0;
+    }
+
+    let count = 0;
+    Array.from(this.frequencys, (frequency) => {
+      if (frequency[0] > -150) {
+        count++;
+        for (let i = 0; i < frequency.length; i++) {
+          sum[i] += frequency[i];
+        }
+      }
+    });
+
+    for (let i = 0; i < this.noise.length; i++) {
+      this.noise[i] = sum[i] / count;
     }
   }
 
   analyze() {
-    this.analyser.getFloatFrequencyData(this.data);
-    this.analyser.getByteTimeDomainData(this.data2);
+    this.analyser.getByteFrequencyData(this.frequency);
+    this.analyser.getByteTimeDomainData(this.domain);
   }
 
 

@@ -52,9 +52,10 @@ var Index = function () {
     this.introduction = new _introduction2.default('.introduction');
     this.recording1 = new _recording2.default('.recording1');
     this.recording2 = new _recording2.default('.recording2');
+
     // this.loading.hide();
+    // this.top.hide();
     // this.recording1.show();
-    //
 
     this.loveRecorder = new _LoveRecorder2.default();
     this.introduction.setRecorder(this.loveRecorder);
@@ -114,11 +115,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(63);
+var _velocityAnimate = __webpack_require__(49);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -223,11 +224,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(63);
+var _velocityAnimate = __webpack_require__(49);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -353,11 +354,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(63);
+var _velocityAnimate = __webpack_require__(49);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -476,11 +477,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(63);
+var _velocityAnimate = __webpack_require__(49);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -492,6 +493,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
 var Recording = function (_events) {
   _inherits(Recording, _events);
 
@@ -502,20 +505,33 @@ var Recording = function (_events) {
 
     _this.$ = document.querySelector(selector);
     _this.$p = _this.$.querySelector('p');
-    _this.$a = _this.$.querySelector('a');
-
-    _this.isRecording = false;
+    _this.$record = _this.$.querySelector('.recording__button');
+    _this.$next = _this.$.querySelector('.recording__next');
 
     _this.canvas = document.getElementById("cvs");
     _this.context = _this.canvas.getContext("2d");
 
+    _this.isRecording = false;
+    _this.isRendering = true;
+
+    _this.bufsize = 1024;
+    _this.frequency = new Uint8Array(_this.bufsize);
+    _this.noise = new Uint8Array(_this.bufsize);
+    _this.frequencys = [];
+    _this.domain = new Uint8Array(_this.bufsize);
+
+    _this.initialize();
     _this.bind();
     return _this;
   }
 
   _createClass(Recording, [{
     key: 'initialize',
-    value: function initialize() {}
+    value: function initialize() {
+      for (var i = 0; i < this.bufsize; i++) {
+        this.noise[i] = 0.0;
+      }
+    }
   }, {
     key: 'show',
     value: function show() {
@@ -532,13 +548,18 @@ var Recording = function (_events) {
     value: function bind() {
       var _this2 = this;
 
-      this.$a.addEventListener('click', function (e) {
+      this.$record.addEventListener('click', function (e) {
 
         if (_this2.isRecording) {
           _this2.stop();
         } else {
           _this2.record();
+          _this2.startCountDown();
         }
+      });
+
+      this.$next.addEventListener('click', function () {
+        _this2.hide();
       });
     }
   }, {
@@ -558,8 +579,7 @@ var Recording = function (_events) {
         complete: function complete() {}
       });
 
-      (0, _velocityAnimate2.default)(this.$a, {
-        translateX: ['-50%', '-50%'],
+      (0, _velocityAnimate2.default)(this.$next, {
         translateY: 100,
         opacity: 0
       }, {
@@ -573,20 +593,33 @@ var Recording = function (_events) {
       });
     }
   }, {
+    key: 'changeToNext',
+    value: function changeToNext() {
+
+      (0, _velocityAnimate2.default)(this.$record, {
+        translateX: ['-50%', '-50%'],
+        opacity: 0
+      }, {
+        display: 'none',
+        duration: 400
+      });
+
+      (0, _velocityAnimate2.default)(this.$next, {
+        opacity: [1, 0]
+      }, {
+        display: 'block',
+        delay: 400,
+        duration: 1000
+      });
+    }
+  }, {
     key: 'record',
     value: function record() {
       var _this4 = this;
 
-      this.isRecording = true;
-
-      window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
       this.audioContext = new AudioContext();
       this.sampleRate = this.audioContext.sampleRate;
 
-      this.bufsize = 1024;
-      this.data = new Float32Array(this.bufsize);
-      this.data2 = new Uint8Array(this.bufsize);
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = this.bufsize;
       this.analyser.smoothingTimeContant = 0.1;
@@ -605,12 +638,44 @@ var Recording = function (_events) {
       });
     }
   }, {
+    key: 'startCountDown',
+    value: function startCountDown() {
+      var _this5 = this;
+
+      var count = 3;
+      this.isCalibrating = true;
+      this.isRendering = true;
+
+      clearInterval(this.interval);
+      this.interval = setInterval(function () {
+        count--;
+        if (count === 0) {
+          clearInterval(_this5.interval);
+          _this5.$record.innerText = '愛してる';
+
+          _this5.calculateNoise();
+          _this5.isCalibrating = false;
+          _this5.isRecording = true;
+        } else {
+          _this5.$record.innerText = count;
+        }
+      }, 1000);
+      this.$record.innerText = count;
+
+      setTimeout(function () {
+        if (_this5.isRecording) {
+          //this.stop();
+        }
+      }, 6000);
+    }
+  }, {
     key: 'stop',
     value: function stop() {
+
       this.isRecording = false;
       clearInterval(this.timer);
       //this.stream.getAudioTracks()[0].stop();
-      this.hide();
+      this.changeToNext();
     }
   }, {
     key: 'drawGraph',
@@ -619,7 +684,7 @@ var Recording = function (_events) {
       var width = 1024;
       var height = 512;
 
-      if (this.isRecording) {
+      if (this.isRendering) {
 
         this.analyze();
 
@@ -629,22 +694,57 @@ var Recording = function (_events) {
         this.context.fillStyle = "#009900";
 
         for (var i = 0; i < 512; ++i) {
-          var y = 128 + (this.data[i] + 48.16) * 2.56;
+          var y = (this.frequency[i] - this.noise[i]) * 2;
           this.context.fillRect(i * 2, height - y, 2, y);
         }
 
         this.context.fillStyle = "#99044f";
         for (var _i = 0; _i < 512; ++_i) {
-          var _y = this.data2[_i] * 2 - height / 2;
+          var _y = this.domain[_i] * 2 - height / 2;
           this.context.fillRect(_i * 2, height / 2, 2, _y);
         }
+      }
+
+      if (this.isCalibrating) {
+        this.addFrequency();
+      }
+    }
+  }, {
+    key: 'addFrequency',
+    value: function addFrequency() {
+      var copyData = new Uint8Array(this.frequency.length);
+      copyData.set(this.frequency);
+      this.frequencys.push(copyData);
+    }
+  }, {
+    key: 'calculateNoise',
+    value: function calculateNoise() {
+
+      var sum = new Float32Array(this.bufsize);
+
+      for (var i = 0; i < this.bufsize; i++) {
+        sum[i] = 0;
+      }
+
+      var count = 0;
+      Array.from(this.frequencys, function (frequency) {
+        if (frequency[0] > -150) {
+          count++;
+          for (var _i2 = 0; _i2 < frequency.length; _i2++) {
+            sum[_i2] += frequency[_i2];
+          }
+        }
+      });
+
+      for (var _i3 = 0; _i3 < this.noise.length; _i3++) {
+        this.noise[_i3] = sum[_i3] / count;
       }
     }
   }, {
     key: 'analyze',
     value: function analyze() {
-      this.analyser.getFloatFrequencyData(this.data);
-      this.analyser.getByteTimeDomainData(this.data2);
+      this.analyser.getByteFrequencyData(this.frequency);
+      this.analyser.getByteTimeDomainData(this.domain);
     }
   }, {
     key: 'reset',
@@ -670,7 +770,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(64);
+var _events2 = __webpack_require__(50);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -810,7 +910,7 @@ exports.default = LoveRecorder;
 
 /***/ }),
 
-/***/ 64:
+/***/ 50:
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.

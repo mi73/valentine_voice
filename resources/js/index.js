@@ -17,9 +17,10 @@ class Index {
     this.introduction = new Introduction('.introduction');
     this.recording1 = new Recording('.recording1');
     this.recording2 = new Recording('.recording2');
-     // this.loading.hide();
-     // this.recording1.show();
-    //
+
+    // this.loading.hide();
+    // this.top.hide();
+    // this.recording1.show();
 
     this.loveRecorder = new LoveRecorder;
     this.introduction.setRecorder(this.loveRecorder);
