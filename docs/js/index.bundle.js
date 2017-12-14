@@ -493,6 +493,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
 var Recording = function (_events) {
   _inherits(Recording, _events);
 
@@ -511,6 +513,19 @@ var Recording = function (_events) {
 
     _this.isRecording = false;
     _this.isRendering = true;
+
+    _this.audioContext = new AudioContext();
+    _this.sampleRate = _this.audioContext.sampleRate;
+    _this.bufsize = 1024;
+
+    _this.filter = _this.audioContext.createBiquadFilter();
+    _this.filter.type = 'bandpass';
+    _this.filter.frequency.value = 2000;
+    _this.filter.Q.value = 0.3;
+
+    _this.analyser = _this.audioContext.createAnalyser();
+    _this.analyser.fftSize = _this.bufsize;
+    _this.analyser.smoothingTimeContant = 0.1;
 
     _this.frequency = new Uint8Array(_this.bufsize);
     _this.noise = new Uint8Array(_this.bufsize);
@@ -636,20 +651,6 @@ var Recording = function (_events) {
     key: 'record',
     value: function record() {
       var _this4 = this;
-
-      window.AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.audioContext = new AudioContext();
-      this.sampleRate = this.audioContext.sampleRate;
-      this.bufsize = 1024;
-
-      this.filter = this.audioContext.createBiquadFilter();
-      this.filter.type = 'bandpass';
-      this.filter.frequency.value = 2000;
-      this.filter.Q.value = 0.3;
-
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0.1;
 
       this.timer = setInterval(function () {
         _this4.drawGraph();
