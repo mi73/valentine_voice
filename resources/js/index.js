@@ -2,6 +2,7 @@ import Loading from './modules/ui/loading';
 import Top from './modules/ui/top';
 import Introduction from './modules/ui/introduction';
 import Recording from './modules/ui/recording';
+import Generating from './modules/ui/generating';
 
 import LoveRecorder from './modules/LoveRecorder';
 
@@ -17,6 +18,7 @@ class Index {
     this.introduction = new Introduction('.introduction');
     this.recording1 = new Recording('.recording1');
     this.recording2 = new Recording('.recording2');
+    this.generating = new Generating('.generating');
 
     // this.loading.hide();
     // this.top.hide();
@@ -52,6 +54,10 @@ class Index {
       this.loveRecorder.stopRecording();
     }).on('hidden', () => {
       this.recording2.show();
+    });
+
+    this.recording2.on('hidden', () => {
+      this.generating.show();
     });
 
     this.loveRecorder.on('getData', () => {

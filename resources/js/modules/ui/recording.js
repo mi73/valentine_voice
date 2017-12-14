@@ -38,9 +38,18 @@ export default class Recording extends events {
     console.log('U', this.filter);
 
     this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
+
+    document.getElementById("freq").min = this.filter.frequency.minValue;
+    document.getElementById("freq").max = this.filter.frequency.maxValue;
+    document.getElementById("q").min = this.filter.frequency.minValue;
+    document.getElementById("q").max = this.filter.frequency.maxValue;
+    document.getElementById("gain").min = this.filter.frequency.minValue;
+    document.getElementById("gain").max = this.filter.frequency.maxValue;
+
     this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
     this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
     this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
+
   }
 
   show() {

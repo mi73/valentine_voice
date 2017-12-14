@@ -32,6 +32,10 @@ var _recording = __webpack_require__(335);
 
 var _recording2 = _interopRequireDefault(_recording);
 
+var _generating = __webpack_require__(337);
+
+var _generating2 = _interopRequireDefault(_generating);
+
 var _LoveRecorder = __webpack_require__(336);
 
 var _LoveRecorder2 = _interopRequireDefault(_LoveRecorder);
@@ -52,6 +56,7 @@ var Index = function () {
     this.introduction = new _introduction2.default('.introduction');
     this.recording1 = new _recording2.default('.recording1');
     this.recording2 = new _recording2.default('.recording2');
+    this.generating = new _generating2.default('.generating');
 
     // this.loading.hide();
     // this.top.hide();
@@ -88,6 +93,10 @@ var Index = function () {
         _this.loveRecorder.stopRecording();
       }).on('hidden', function () {
         _this.recording2.show();
+      });
+
+      this.recording2.on('hidden', function () {
+        _this.generating.show();
       });
 
       this.loveRecorder.on('getData', function () {
@@ -538,6 +547,14 @@ var Recording = function (_events) {
       console.log('U', this.filter);
 
       this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
+
+      document.getElementById("freq").min = this.filter.frequency.minValue;
+      document.getElementById("freq").max = this.filter.frequency.maxValue;
+      document.getElementById("q").min = this.filter.frequency.minValue;
+      document.getElementById("q").max = this.filter.frequency.maxValue;
+      document.getElementById("gain").min = this.filter.frequency.minValue;
+      document.getElementById("gain").max = this.filter.frequency.maxValue;
+
       this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
       this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
       this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
@@ -939,6 +956,121 @@ var LoveRecorder = function (_events) {
 }(_events3.default);
 
 exports.default = LoveRecorder;
+
+/***/ }),
+
+/***/ 337:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _events2 = __webpack_require__(50);
+
+var _events3 = _interopRequireDefault(_events2);
+
+var _velocityAnimate = __webpack_require__(49);
+
+var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Generating = function (_events) {
+  _inherits(Generating, _events);
+
+  function Generating(selector) {
+    _classCallCheck(this, Generating);
+
+    var _this = _possibleConstructorReturn(this, (Generating.__proto__ || Object.getPrototypeOf(Generating)).call(this));
+
+    _this.$ = document.querySelector(selector);
+
+    _this.$first = _this.$.querySelector('.generating__first');
+    _this.$second = _this.$.querySelector('.generating__second');
+
+    _this.initialize();
+    return _this;
+  }
+
+  _createClass(Generating, [{
+    key: 'initialize',
+    value: function initialize() {}
+  }, {
+    key: 'show',
+    value: function show() {
+      var _this2 = this;
+
+      (0, _velocityAnimate2.default)(this.$, {
+        opacity: [1, 0]
+      }, {
+        queue: false,
+        display: 'block',
+        duration: 800
+      });
+
+      setTimeout(function () {
+        _this2.changeText();
+      }, 3000);
+
+      setTimeout(function () {
+        _this2.hide();
+      }, 6000);
+    }
+  }, {
+    key: 'changeText',
+    value: function changeText() {
+      (0, _velocityAnimate2.default)(this.$first, {
+        opacity: 0
+      }, {
+        queue: false,
+        display: 'none',
+        duration: 800
+      });
+      (0, _velocityAnimate2.default)(this.$second, {
+        opacity: 1
+      }, {
+        queue: false,
+        display: 'block',
+        duration: 800
+      });
+    }
+  }, {
+    key: 'hide',
+    value: function hide() {
+      var _this3 = this;
+
+      this.emit('hide');
+
+      (0, _velocityAnimate2.default)(this.$, {
+        opacity: 0
+      }, {
+        queue: false,
+        display: 'none',
+        duration: 800,
+        complete: function complete() {
+          _this3.$.style.display = 'none';
+          _this3.emit('hidden');
+        }
+      });
+    }
+  }]);
+
+  return Generating;
+}(_events3.default);
+
+exports.default = Generating;
 
 /***/ }),
 

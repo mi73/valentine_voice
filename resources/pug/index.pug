@@ -1,7 +1,7 @@
 extends modules/_layout
 
 block content
-  
+
   canvas#cvs(width=1024 height=512 style='margin-top: 60px;')
 
   section.loading
@@ -40,20 +40,35 @@ block content
 
   section.recording.recording2
     p
-      | 次に、相手の手を握り、<br>
+      | 次に、パートナーに、<br>
+      | スマートフォンを渡してください。<br>
+      | 同じように手を握ってもらい。<br>
       | 目を見つめながら、<br>
-      | スマートフォンに、<br>
       | 「愛してる。」<br>
-      | と言ってください。
+      | と言ってもらいましょう。
 
     a.recording__button 録音する
     a.recording__next next
 
-
-  section.recording2
   section.generating
+    p.generating__first 準備が整いました。<br>二人の愛を分析します。
+    p.generating__second さぁ結果が出たようです。
+
   section.result
+    .result__logo Taste your love
+    .result__img
+    .result__gauges
+      .result__gauge
+        | 情熱度：<span id='result__passion'></span>
+      .result__gauge
+        | 成熟度：<span id='result__maturity'></span>
+      .result__gauge
+        | 刺激度：<span id='result__exciting'></span>
+    .result__vote Twitterに応募
+    .result__apply キャンペーンに応募
+
   .terms
+
   .campaign
 
   .ui
