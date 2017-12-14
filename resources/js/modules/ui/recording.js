@@ -18,19 +18,7 @@ export default class Recording extends events {
     this.isRecording = false;
     this.isRendering = true;
 
-    this.audioContext = new AudioContext();
-    this.sampleRate = this.audioContext.sampleRate;
     this.bufsize = 1024;
-
-    this.filter = this.audioContext.createBiquadFilter();
-    this.filter.type = 'bandpass';
-    this.filter.frequency.value = 2000;
-    this.filter.Q.value = 0.3;
-
-    this.analyser = this.audioContext.createAnalyser();
-    this.analyser.fftSize = this.bufsize;
-    this.analyser.smoothingTimeContant = 0.1;
-
     this.frequency = new Uint8Array(this.bufsize);
     this.noise = new Uint8Array(this.bufsize);
     this.frequencys = [];
@@ -40,6 +28,12 @@ export default class Recording extends events {
     this.bind();
   }
 
+  initialize() {
+    for (let i = 0; i < this.bufsize; i++) {
+      this.noise[i] = 0.0;
+    }
+  }
+
   upDateFilter() {
     console.log('U')
     this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
@@ -47,12 +41,6 @@ export default class Recording extends events {
     this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
     this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
     this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
-  }
-
-  initialize() {
-    for (let i = 0; i < this.bufsize; i++) {
-      this.noise[i] = 0.0;
-    }
   }
 
   show() {
@@ -141,10 +129,24 @@ export default class Recording extends events {
 
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
       console.log("stream" + stream);
+
+      this.audioContext = new AudioContext();
+      this.sampleRate = this.audioContext.sampleRate;
+
+      // this.filter = audioContext.createBiquadFilter();
+      // this.filter.type = 0;
+      // this.filter.frequency.value = 20000;
+
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = this.bufsize;
+      this.analyser.smoothingTimeContant = 0.1;
+
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
-      this.input.connect(this.filter);
-      this.filter.connect(this.analyser);
+      // this.input.connect(this.filter);
+      // this.filter.connect(this.analyser);
+
+      this.input.connect(this.analyser);
     }, (e) => {
       console.log("No live audio input in this browser: " + e);
     });

@@ -514,19 +514,7 @@ var Recording = function (_events) {
     _this.isRecording = false;
     _this.isRendering = true;
 
-    _this.audioContext = new AudioContext();
-    _this.sampleRate = _this.audioContext.sampleRate;
     _this.bufsize = 1024;
-
-    _this.filter = _this.audioContext.createBiquadFilter();
-    _this.filter.type = 'bandpass';
-    _this.filter.frequency.value = 2000;
-    _this.filter.Q.value = 0.3;
-
-    _this.analyser = _this.audioContext.createAnalyser();
-    _this.analyser.fftSize = _this.bufsize;
-    _this.analyser.smoothingTimeContant = 0.1;
-
     _this.frequency = new Uint8Array(_this.bufsize);
     _this.noise = new Uint8Array(_this.bufsize);
     _this.frequencys = [];
@@ -538,6 +526,13 @@ var Recording = function (_events) {
   }
 
   _createClass(Recording, [{
+    key: 'initialize',
+    value: function initialize() {
+      for (var i = 0; i < this.bufsize; i++) {
+        this.noise[i] = 0.0;
+      }
+    }
+  }, {
     key: 'upDateFilter',
     value: function upDateFilter() {
       console.log('U');
@@ -546,13 +541,6 @@ var Recording = function (_events) {
       this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
       this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
       this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
-    }
-  }, {
-    key: 'initialize',
-    value: function initialize() {
-      for (var i = 0; i < this.bufsize; i++) {
-        this.noise[i] = 0.0;
-      }
     }
   }, {
     key: 'show',
@@ -658,10 +646,24 @@ var Recording = function (_events) {
 
       navigator.getUserMedia({ video: false, audio: true }, function (stream) {
         console.log("stream" + stream);
+
+        _this4.audioContext = new AudioContext();
+        _this4.sampleRate = _this4.audioContext.sampleRate;
+
+        // this.filter = audioContext.createBiquadFilter();
+        // this.filter.type = 0;
+        // this.filter.frequency.value = 20000;
+
+        _this4.analyser = _this4.audioContext.createAnalyser();
+        _this4.analyser.fftSize = _this4.bufsize;
+        _this4.analyser.smoothingTimeContant = 0.1;
+
         _this4.stream = stream;
         _this4.input = _this4.audioContext.createMediaStreamSource(stream);
-        _this4.input.connect(_this4.filter);
-        _this4.filter.connect(_this4.analyser);
+        // this.input.connect(this.filter);
+        // this.filter.connect(this.analyser);
+
+        _this4.input.connect(_this4.analyser);
       }, function (e) {
         console.log("No live audio input in this browser: " + e);
       });
