@@ -5,6 +5,8 @@ export default class Recording extends events {
   constructor(selector) {
     super();
 
+    this.selector = selector;
+    this.isFirst = selector === '.recording1';
     this.$ = document.querySelector(selector);
     this.$p = this.$.querySelector('p');
     this.$record = this.$.querySelector('.recording__button');
@@ -12,6 +14,9 @@ export default class Recording extends events {
 
     this.canvas = document.getElementById("cvs");
     this.context = this.canvas.getContext("2d");
+
+    this.wave = this.$.querySelector('.wave');
+    this.waveContext = this.wave.getContext("2d");
 
     this.isRecording = false;
     this.isRendering = true;
@@ -21,6 +26,8 @@ export default class Recording extends events {
     this.noise = new Uint8Array(this.bufsize);
     this.frequencys = [];
     this.domain = new Uint8Array(this.bufsize);
+    this.domains = [];
+    this.graph = [];
 
     this.initialize();
     this.bind();
@@ -65,9 +72,7 @@ export default class Recording extends events {
   bind() {
     this.$record.addEventListener('click', (e) => {
 
-      if (this.isRecording) {
-        this.stop();
-      } else {
+      if (!this.isRecording) {
         this.record();
         this.startCountDown();
       }
@@ -134,6 +139,9 @@ export default class Recording extends events {
 
     this.timer = setInterval(() => {
       this.drawGraph();
+      if (this.isRecording) {
+        this.drawWave();
+      }
     }, 1000 / 60);
 
     navigator.getUserMedia({video: false, audio: true}, (stream) => {
@@ -149,7 +157,7 @@ export default class Recording extends events {
 
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = this.bufsize;
-      this.analyser.smoothingTimeContant = 0.1;
+      this.analyser.smoothingTimeContant = 0;
 
       this.stream = stream;
       this.input = this.audioContext.createMediaStreamSource(stream);
@@ -186,17 +194,40 @@ export default class Recording extends events {
 
     setTimeout(() => {
       if (this.isRecording) {
-        //this.stop();
+        this.stop();
       }
     }, 6000);
   }
 
   stop() {
-
+    console.log(this);
     this.isRecording = false;
     clearInterval(this.timer);
-    //this.stream.getAudioTracks()[0].stop();
+    this.drawWave();
     this.changeToNext();
+  }
+
+  drawWave() {
+
+    this.waveContext.fillStyle = this.isFirst ? "#00bafd" : '#ff00fc';
+    this.waveContext.shadowColor = this.isFirst ? "#00bafd" : '#ff00fc';
+    this.waveContext.shadowBlur = 20;
+    this.waveContext.shadowOffsetX = 0;
+    this.waveContext.shadowOffsetY = 0;
+    this.graph = [];
+
+    this.waveContext.clearRect(0, 0, 640, 400);
+
+    for(let i = 0; i < this.domains.length / 2; i++) {
+      let sum = 0;
+      for(let j = 0; j < this.domains[i * 2].length; j++) {
+        sum += this.domains[i * 2][j];
+      }
+      const average = sum / this.domains[i * 2].length * 2;
+      this.waveContext.fillRect(50 + 6 * i, 200, 3, average);
+      this.waveContext.fillRect(50 + 6 * i, 200, 3, -average);
+      this.graph.push(average);
+    }
   }
 
   drawGraph() {
@@ -225,15 +256,19 @@ export default class Recording extends events {
       }
     }
 
-    if (this.isCalibrating) {
+    //if (this.isCalibrating) {
       this.addFrequency();
-    }
+    //}
   }
 
   addFrequency() {
     const copyData = new Uint8Array(this.frequency.length);
     copyData.set(this.frequency);
     this.frequencys.push(copyData);
+
+    const copyData2 = new Uint8Array(this.domain.length);
+    copyData2.set(this.frequency);
+    this.domains.push(copyData2);
   }
 
   calculateNoise() {
@@ -257,6 +292,9 @@ export default class Recording extends events {
     for (let i = 0; i < this.noise.length; i++) {
       this.noise[i] = sum[i] / count;
     }
+
+    this.domains = [];
+    this.frequencys = [];
   }
 
   analyze() {

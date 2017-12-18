@@ -32,11 +32,11 @@ var _recording = __webpack_require__(335);
 
 var _recording2 = _interopRequireDefault(_recording);
 
-var _generating = __webpack_require__(337);
+var _generating = __webpack_require__(336);
 
 var _generating2 = _interopRequireDefault(_generating);
 
-var _LoveRecorder = __webpack_require__(336);
+var _LoveRecorder = __webpack_require__(337);
 
 var _LoveRecorder2 = _interopRequireDefault(_LoveRecorder);
 
@@ -57,6 +57,7 @@ var Index = function () {
     this.recording1 = new _recording2.default('.recording1');
     this.recording2 = new _recording2.default('.recording2');
     this.generating = new _generating2.default('.generating');
+    this.generating.setRecordingData(this.recording1, this.recording2);
 
     // this.loading.hide();
     // this.top.hide();
@@ -124,11 +125,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(47);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(46);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -233,11 +234,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(47);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(46);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -363,11 +364,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(47);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(46);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -486,11 +487,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(47);
 
 var _events3 = _interopRequireDefault(_events2);
 
-var _velocityAnimate = __webpack_require__(49);
+var _velocityAnimate = __webpack_require__(46);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
@@ -510,6 +511,8 @@ var Recording = function (_events) {
 
     var _this = _possibleConstructorReturn(this, (Recording.__proto__ || Object.getPrototypeOf(Recording)).call(this));
 
+    _this.selector = selector;
+    _this.isFirst = selector === '.recording1';
     _this.$ = document.querySelector(selector);
     _this.$p = _this.$.querySelector('p');
     _this.$record = _this.$.querySelector('.recording__button');
@@ -517,6 +520,9 @@ var Recording = function (_events) {
 
     _this.canvas = document.getElementById("cvs");
     _this.context = _this.canvas.getContext("2d");
+
+    _this.wave = _this.$.querySelector('.wave');
+    _this.waveContext = _this.wave.getContext("2d");
 
     _this.isRecording = false;
     _this.isRendering = true;
@@ -526,6 +532,8 @@ var Recording = function (_events) {
     _this.noise = new Uint8Array(_this.bufsize);
     _this.frequencys = [];
     _this.domain = new Uint8Array(_this.bufsize);
+    _this.domains = [];
+    _this.graph = [];
 
     _this.initialize();
     _this.bind();
@@ -577,9 +585,7 @@ var Recording = function (_events) {
 
       this.$record.addEventListener('click', function (e) {
 
-        if (_this2.isRecording) {
-          _this2.stop();
-        } else {
+        if (!_this2.isRecording) {
           _this2.record();
           _this2.startCountDown();
         }
@@ -659,6 +665,9 @@ var Recording = function (_events) {
 
       this.timer = setInterval(function () {
         _this4.drawGraph();
+        if (_this4.isRecording) {
+          _this4.drawWave();
+        }
       }, 1000 / 60);
 
       navigator.getUserMedia({ video: false, audio: true }, function (stream) {
@@ -674,7 +683,7 @@ var Recording = function (_events) {
 
         _this4.analyser = _this4.audioContext.createAnalyser();
         _this4.analyser.fftSize = _this4.bufsize;
-        _this4.analyser.smoothingTimeContant = 0.1;
+        _this4.analyser.smoothingTimeContant = 0;
 
         _this4.stream = stream;
         _this4.input = _this4.audioContext.createMediaStreamSource(stream);
@@ -713,18 +722,42 @@ var Recording = function (_events) {
 
       setTimeout(function () {
         if (_this5.isRecording) {
-          //this.stop();
+          _this5.stop();
         }
       }, 6000);
     }
   }, {
     key: 'stop',
     value: function stop() {
-
+      console.log(this);
       this.isRecording = false;
       clearInterval(this.timer);
-      //this.stream.getAudioTracks()[0].stop();
+      this.drawWave();
       this.changeToNext();
+    }
+  }, {
+    key: 'drawWave',
+    value: function drawWave() {
+
+      this.waveContext.fillStyle = this.isFirst ? "#00bafd" : '#ff00fc';
+      this.waveContext.shadowColor = this.isFirst ? "#00bafd" : '#ff00fc';
+      this.waveContext.shadowBlur = 20;
+      this.waveContext.shadowOffsetX = 0;
+      this.waveContext.shadowOffsetY = 0;
+      this.graph = [];
+
+      this.waveContext.clearRect(0, 0, 640, 400);
+
+      for (var i = 0; i < this.domains.length / 2; i++) {
+        var sum = 0;
+        for (var j = 0; j < this.domains[i * 2].length; j++) {
+          sum += this.domains[i * 2][j];
+        }
+        var average = sum / this.domains[i * 2].length * 2;
+        this.waveContext.fillRect(50 + 6 * i, 200, 3, average);
+        this.waveContext.fillRect(50 + 6 * i, 200, 3, -average);
+        this.graph.push(average);
+      }
     }
   }, {
     key: 'drawGraph',
@@ -754,9 +787,9 @@ var Recording = function (_events) {
         }
       }
 
-      if (this.isCalibrating) {
-        this.addFrequency();
-      }
+      //if (this.isCalibrating) {
+      this.addFrequency();
+      //}
     }
   }, {
     key: 'addFrequency',
@@ -764,6 +797,10 @@ var Recording = function (_events) {
       var copyData = new Uint8Array(this.frequency.length);
       copyData.set(this.frequency);
       this.frequencys.push(copyData);
+
+      var copyData2 = new Uint8Array(this.domain.length);
+      copyData2.set(this.frequency);
+      this.domains.push(copyData2);
     }
   }, {
     key: 'calculateNoise',
@@ -788,6 +825,9 @@ var Recording = function (_events) {
       for (var _i3 = 0; _i3 < this.noise.length; _i3++) {
         this.noise[_i3] = sum[_i3] / count;
       }
+
+      this.domains = [];
+      this.frequencys = [];
     }
   }, {
     key: 'analyze',
@@ -819,7 +859,162 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _events2 = __webpack_require__(50);
+var _events2 = __webpack_require__(47);
+
+var _events3 = _interopRequireDefault(_events2);
+
+var _velocityAnimate = __webpack_require__(46);
+
+var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Generating = function (_events) {
+  _inherits(Generating, _events);
+
+  function Generating(selector) {
+    _classCallCheck(this, Generating);
+
+    var _this = _possibleConstructorReturn(this, (Generating.__proto__ || Object.getPrototypeOf(Generating)).call(this));
+
+    _this.$ = document.querySelector(selector);
+
+    _this.$first = _this.$.querySelector('.generating__first');
+    _this.$second = _this.$.querySelector('.generating__second');
+
+    _this.wave = _this.$.querySelector('.wave');
+    _this.waveContext = _this.wave.getContext("2d");
+    _this.operation = 'destination-over';
+
+    _this.initialize();
+    return _this;
+  }
+
+  _createClass(Generating, [{
+    key: 'initialize',
+    value: function initialize() {}
+  }, {
+    key: 'setRecordingData',
+    value: function setRecordingData(recording1, recording2) {
+      this.recording1 = recording1;
+      this.recording2 = recording2;
+    }
+  }, {
+    key: 'drawWave',
+    value: function drawWave() {
+
+      this.waveContext.fillStyle = "#00bafd"; // : '#ff00fc';
+      this.waveContext.shadowColor = "#00bafd";
+      this.waveContext.shadowBlur = 20;
+      this.waveContext.shadowOffsetX = 0;
+      this.waveContext.shadowOffsetY = 0;
+
+      this.waveContext.globalCompositeOperation = this.operation;
+
+      this.waveContext.clearRect(0, 0, 640, 400);
+
+      for (var i = 0; i < this.recording1.graph.length; i++) {
+        this.waveContext.fillStyle = "#00bafd"; // : '#ff00fc';
+        this.waveContext.shadowColor = "#00bafd";
+        this.waveContext.fillRect(0 + 6 * i, 200, 3, this.recording1.graph[i]);
+        this.waveContext.fillRect(0 + 6 * i, 200, 3, -this.recording1.graph[i]);
+      }
+
+      for (var _i = 0; _i < this.recording2.graph.length; _i++) {
+        this.waveContext.fillStyle = "#ff00fc";
+        this.waveContext.shadowColor = "#ff00fc";
+        this.waveContext.fillRect(3 + 6 * _i, 200, 3, this.recording2.graph[_i]);
+        this.waveContext.fillRect(3 + 6 * _i, 200, 3, -this.recording2.graph[_i]);
+      }
+    }
+  }, {
+    key: 'show',
+    value: function show() {
+      var _this2 = this;
+
+      this.drawWave();
+
+      (0, _velocityAnimate2.default)(this.$, {
+        opacity: [1, 0]
+      }, {
+        queue: false,
+        display: 'block',
+        duration: 800
+      });
+
+      setTimeout(function () {
+        _this2.changeText();
+      }, 10000);
+
+      setTimeout(function () {
+        //this.hide();
+      }, 12000);
+    }
+  }, {
+    key: 'changeText',
+    value: function changeText() {
+      (0, _velocityAnimate2.default)(this.$first, {
+        opacity: 0
+      }, {
+        queue: false,
+        display: 'none',
+        duration: 800
+      });
+      (0, _velocityAnimate2.default)(this.$second, {
+        opacity: 1
+      }, {
+        queue: false,
+        display: 'block',
+        duration: 800
+      });
+    }
+  }, {
+    key: 'hide',
+    value: function hide() {
+      var _this3 = this;
+
+      this.emit('hide');
+
+      (0, _velocityAnimate2.default)(this.$, {
+        opacity: 0
+      }, {
+        queue: false,
+        display: 'none',
+        duration: 800,
+        complete: function complete() {
+          _this3.$.style.display = 'none';
+          _this3.emit('hidden');
+        }
+      });
+    }
+  }]);
+
+  return Generating;
+}(_events3.default);
+
+exports.default = Generating;
+
+/***/ }),
+
+/***/ 337:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _events2 = __webpack_require__(47);
 
 var _events3 = _interopRequireDefault(_events2);
 
@@ -959,122 +1154,7 @@ exports.default = LoveRecorder;
 
 /***/ }),
 
-/***/ 337:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _events2 = __webpack_require__(50);
-
-var _events3 = _interopRequireDefault(_events2);
-
-var _velocityAnimate = __webpack_require__(49);
-
-var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Generating = function (_events) {
-  _inherits(Generating, _events);
-
-  function Generating(selector) {
-    _classCallCheck(this, Generating);
-
-    var _this = _possibleConstructorReturn(this, (Generating.__proto__ || Object.getPrototypeOf(Generating)).call(this));
-
-    _this.$ = document.querySelector(selector);
-
-    _this.$first = _this.$.querySelector('.generating__first');
-    _this.$second = _this.$.querySelector('.generating__second');
-
-    _this.initialize();
-    return _this;
-  }
-
-  _createClass(Generating, [{
-    key: 'initialize',
-    value: function initialize() {}
-  }, {
-    key: 'show',
-    value: function show() {
-      var _this2 = this;
-
-      (0, _velocityAnimate2.default)(this.$, {
-        opacity: [1, 0]
-      }, {
-        queue: false,
-        display: 'block',
-        duration: 800
-      });
-
-      setTimeout(function () {
-        _this2.changeText();
-      }, 3000);
-
-      setTimeout(function () {
-        _this2.hide();
-      }, 6000);
-    }
-  }, {
-    key: 'changeText',
-    value: function changeText() {
-      (0, _velocityAnimate2.default)(this.$first, {
-        opacity: 0
-      }, {
-        queue: false,
-        display: 'none',
-        duration: 800
-      });
-      (0, _velocityAnimate2.default)(this.$second, {
-        opacity: 1
-      }, {
-        queue: false,
-        display: 'block',
-        duration: 800
-      });
-    }
-  }, {
-    key: 'hide',
-    value: function hide() {
-      var _this3 = this;
-
-      this.emit('hide');
-
-      (0, _velocityAnimate2.default)(this.$, {
-        opacity: 0
-      }, {
-        queue: false,
-        display: 'none',
-        duration: 800,
-        complete: function complete() {
-          _this3.$.style.display = 'none';
-          _this3.emit('hidden');
-        }
-      });
-    }
-  }]);
-
-  return Generating;
-}(_events3.default);
-
-exports.default = Generating;
-
-/***/ }),
-
-/***/ 50:
+/***/ 47:
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.

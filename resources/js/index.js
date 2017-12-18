@@ -19,6 +19,7 @@ class Index {
     this.recording1 = new Recording('.recording1');
     this.recording2 = new Recording('.recording2');
     this.generating = new Generating('.generating');
+    this.generating.setRecordingData(this.recording1, this.recording2);
 
     // this.loading.hide();
     // this.top.hide();

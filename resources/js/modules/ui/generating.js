@@ -10,6 +10,10 @@ export default class Generating extends events {
     this.$first = this.$.querySelector('.generating__first');
     this.$second = this.$.querySelector('.generating__second');
 
+    this.wave = this.$.querySelector('.wave');
+    this.waveContext = this.wave.getContext("2d");
+    this.operation = 'destination-over';
+
     this.initialize();
   }
 
@@ -18,7 +22,43 @@ export default class Generating extends events {
 
   }
 
+  setRecordingData(recording1, recording2) {
+    this.recording1 = recording1;
+    this.recording2 = recording2;
+  }
+
+  drawWave() {
+
+    this.waveContext.fillStyle = "#00bafd"; // : '#ff00fc';
+    this.waveContext.shadowColor = "#00bafd";
+    this.waveContext.shadowBlur = 20;
+    this.waveContext.shadowOffsetX = 0;
+    this.waveContext.shadowOffsetY = 0;
+
+    this.waveContext.globalCompositeOperation = this.operation;
+
+    this.waveContext.clearRect(0, 0, 640, 400);
+
+    for(let i = 0; i < this.recording1.graph.length; i++) {
+      this.waveContext.fillStyle = "#00bafd"; // : '#ff00fc';
+      this.waveContext.shadowColor = "#00bafd";
+      this.waveContext.fillRect(0 + 6 * i, 200, 3, this.recording1.graph[i]);
+      this.waveContext.fillRect(0 + 6 * i, 200, 3, -this.recording1.graph[i]);
+    }
+
+    for(let i = 0; i < this.recording2.graph.length; i++) {
+      this.waveContext.fillStyle = "#ff00fc";
+      this.waveContext.shadowColor = "#ff00fc";
+      this.waveContext.fillRect(3 + 6 * i, 200, 3, this.recording2.graph[i]);
+      this.waveContext.fillRect(3 + 6 * i, 200, 3, -this.recording2.graph[i]);
+    }
+
+  }
+
   show() {
+
+    this.drawWave();
+
     velocity(this.$, {
       opacity: [1, 0],
     }, {
@@ -29,11 +69,11 @@ export default class Generating extends events {
 
     setTimeout(() => {
       this.changeText();
-    }, 3000);
+    }, 10000);
 
     setTimeout(() => {
-      this.hide();
-    }, 6000);
+      //this.hide();
+    }, 12000);
   }
 
   changeText() {
