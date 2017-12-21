@@ -1,0 +1,70 @@
+extends modules/_layout
+
+block content
+
+    section.section__analytics
+
+        label(for='man') 男性
+        select#man(name='man')
+            option(value='m1.wav') 男性１
+            option(value='m2.wav') 男性２
+            option(value='m3.wav') 男性３
+            option(value='m4.wav') 男性４
+            option(value='m5.mp3') 男性５
+            option(value='m6.mp3') 男性６
+            option(value='m7.mp3') 男性７
+            option(value='m8.mp3') 男性８
+            option(value='m9.mp3') 男性９
+            option(value='m10.mp3') 男性１０
+            option(value='m11.mp3') 男性１１
+            option(value='m12.mp3') 男性１２
+            option(value='m13.mp3') 男性１３
+            - for (var i = 14; i < 57; i++) {
+            option(value=`m${i}.wav`)= `男性${i}`
+            - }
+
+        button#playMan 再生
+
+        label(for='woman') 女性
+        select#woman(name='woman')
+            option(value='w1.wav') 女性１
+            option(value='w2.wav') 女性２
+            option(value='w3.wav') 女性３
+            option(value='w4.wav') 女性４
+            option(value='w5.wav') 女性５
+            option(value='w6.mp3') 女性６
+            option(value='w7.mp3') 女性７
+            option(value='w8.mp3') 女性８
+            option(value='w9.mp3') 女性９
+            option(value='w10.mp3') 女性１０
+            option(value='w11.mp3') 女性１１
+            - for (var i = 12; i < 35; i++) {
+            option(value=`w${i}.wav`)= `女性${i}`
+            - }
+
+        button#playWoman 再生
+
+        button#analysis 分析
+
+        button#allAnalysis 全分析
+
+        .data
+            p man peak :
+                span.mPeak
+            p woman peak :
+                span.wPeak
+            p man length :
+                span.mLength
+            p woman length :
+                span.wLength
+            p similarity :
+                span.similarity
+
+        .canvas__box
+            .canvas__box__canvas
+                canvas.wave(width=640 height=400)
+                canvas#cvs(width=1024 height=512)
+
+
+    script(src='./js/vendor.bundle.js?' + new Date().getTime())
+    script(src='./js/analytics.bundle.js?' + new Date().getTime())

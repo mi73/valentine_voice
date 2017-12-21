@@ -14,6 +14,7 @@ module.exports = {
       'velocity-animate',
     ],
     index: [JS_SRC + '/index.js'],
+    analytics: [JS_SRC + '/analytics.js'],
   },
   output: {
     path: JS_DEST,

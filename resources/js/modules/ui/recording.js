@@ -39,26 +39,6 @@ export default class Recording extends events {
     }
   }
 
-  upDateFilter() {
-    if (!this.filter) return;
-
-    console.log('U', this.filter);
-
-    this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
-
-    document.getElementById("freq").min = this.filter.frequency.minValue;
-    document.getElementById("freq").max = this.filter.frequency.maxValue;
-    document.getElementById("q").min = this.filter.frequency.minValue;
-    document.getElementById("q").max = this.filter.frequency.maxValue;
-    document.getElementById("gain").min = this.filter.frequency.minValue;
-    document.getElementById("gain").max = this.filter.frequency.maxValue;
-
-    this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
-    this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
-    this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
-
-  }
-
   show() {
     velocity(this.$, {
       opacity: [1, 0],
@@ -81,11 +61,6 @@ export default class Recording extends events {
     this.$next.addEventListener('click', () => {
       this.hide();
     });
-
-    document.querySelector('#filter').addEventListener('change', () => { this.upDateFilter() });
-    document.querySelector('#freq').addEventListener('change', () => { this.upDateFilter() });
-    document.querySelector('#q').addEventListener('change', () => { this.upDateFilter() });
-    document.querySelector('#gain').addEventListener('change', () => { this.upDateFilter() });
   }
 
   hide() {
@@ -218,14 +193,14 @@ export default class Recording extends events {
 
     this.waveContext.clearRect(0, 0, 640, 400);
 
-    for(let i = 0; i < this.domains.length / 2; i++) {
+    for(let i = 0; i < this.frequencys.length; i++) {
       let sum = 0;
-      for(let j = 0; j < this.domains[i * 2].length; j++) {
-        sum += this.domains[i * 2][j];
+      for(let j = 0; j < this.frequencys[i].length; j++) {
+        sum += this.frequencys[i][j];
       }
-      const average = sum / this.domains[i * 2].length * 2;
-      this.waveContext.fillRect(50 + 6 * i, 200, 3, average);
-      this.waveContext.fillRect(50 + 6 * i, 200, 3, -average);
+      const average = sum / this.frequencys[i].length * 2;
+      this.waveContext.fillRect(50 + 3 * i, 200, 1, average);
+      this.waveContext.fillRect(50 + 3 * i, 200, 1, -average);
       this.graph.push(average);
     }
   }
@@ -244,16 +219,17 @@ export default class Recording extends events {
 
       this.context.fillStyle = "#009900";
 
-      for (let i = 0; i < 512; ++i) {
-        let y = (this.frequency[i] - this.noise[i]) * 2;
-        this.context.fillRect(i * 2, height - y, 2, y);
-      }
 
-      this.context.fillStyle = "#99044f";
-      for (let i = 0; i < 512; ++i) {
-        let y = this.domain[i] * 2 - height / 2;
-        this.context.fillRect(i * 2, height / 2, 2, y);
-      }
+      // for (let i = 0; i < 512; ++i) {
+      //   let y = (this.frequency[i] - this.noise[i]) * 2;
+      //   this.context.fillRect(i * 2, height - y, 2, y);
+      // }
+      //
+      // this.context.fillStyle = "#99044f";
+      // for (let i = 0; i < 512; ++i) {
+      //   let y = this.domain[i] * 2 - height / 2;
+      //   this.context.fillRect(i * 2, height / 2, 2, y);
+      // }
     }
 
     //if (this.isCalibrating) {
@@ -262,13 +238,15 @@ export default class Recording extends events {
   }
 
   addFrequency() {
-    const copyData = new Uint8Array(this.frequency.length);
-    copyData.set(this.frequency);
-    this.frequencys.push(copyData);
+    if (this.frequency[10] > 0) {
+      const copyData = new Uint8Array(this.frequency.length);
+      copyData.set(this.frequency);
+      this.frequencys.push(copyData);
 
-    const copyData2 = new Uint8Array(this.domain.length);
-    copyData2.set(this.frequency);
-    this.domains.push(copyData2);
+      const copyData2 = new Uint8Array(this.domain.length);
+      copyData2.set(this.domain);
+      this.domains.push(copyData2);
+    }
   }
 
   calculateNoise() {

@@ -548,26 +548,6 @@ var Recording = function (_events) {
       }
     }
   }, {
-    key: 'upDateFilter',
-    value: function upDateFilter() {
-      if (!this.filter) return;
-
-      console.log('U', this.filter);
-
-      this.filter.type = ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "peaking", "notch", "allpass"][document.getElementById("filter").selectedIndex];
-
-      document.getElementById("freq").min = this.filter.frequency.minValue;
-      document.getElementById("freq").max = this.filter.frequency.maxValue;
-      document.getElementById("q").min = this.filter.frequency.minValue;
-      document.getElementById("q").max = this.filter.frequency.maxValue;
-      document.getElementById("gain").min = this.filter.frequency.minValue;
-      document.getElementById("gain").max = this.filter.frequency.maxValue;
-
-      this.filter.frequency.value = document.getElementById("freqlabel").innerHTML = parseFloat(document.getElementById("freq").value);
-      this.filter.Q.value = document.getElementById("qlabel").innerHTML = parseFloat(document.getElementById("q").value);
-      this.filter.gain.value = document.getElementById("gainlabel").innerHTML = parseFloat(document.getElementById("gain").value);
-    }
-  }, {
     key: 'show',
     value: function show() {
       (0, _velocityAnimate2.default)(this.$, {
@@ -593,19 +573,6 @@ var Recording = function (_events) {
 
       this.$next.addEventListener('click', function () {
         _this2.hide();
-      });
-
-      document.querySelector('#filter').addEventListener('change', function () {
-        _this2.upDateFilter();
-      });
-      document.querySelector('#freq').addEventListener('change', function () {
-        _this2.upDateFilter();
-      });
-      document.querySelector('#q').addEventListener('change', function () {
-        _this2.upDateFilter();
-      });
-      document.querySelector('#gain').addEventListener('change', function () {
-        _this2.upDateFilter();
       });
     }
   }, {
@@ -748,14 +715,14 @@ var Recording = function (_events) {
 
       this.waveContext.clearRect(0, 0, 640, 400);
 
-      for (var i = 0; i < this.domains.length / 2; i++) {
+      for (var i = 0; i < this.frequencys.length; i++) {
         var sum = 0;
-        for (var j = 0; j < this.domains[i * 2].length; j++) {
-          sum += this.domains[i * 2][j];
+        for (var j = 0; j < this.frequencys[i].length; j++) {
+          sum += this.frequencys[i][j];
         }
-        var average = sum / this.domains[i * 2].length * 2;
-        this.waveContext.fillRect(50 + 6 * i, 200, 3, average);
-        this.waveContext.fillRect(50 + 6 * i, 200, 3, -average);
+        var average = sum / this.frequencys[i].length * 2;
+        this.waveContext.fillRect(50 + 3 * i, 200, 1, average);
+        this.waveContext.fillRect(50 + 3 * i, 200, 1, -average);
         this.graph.push(average);
       }
     }
@@ -775,16 +742,16 @@ var Recording = function (_events) {
 
         this.context.fillStyle = "#009900";
 
-        for (var i = 0; i < 512; ++i) {
-          var y = (this.frequency[i] - this.noise[i]) * 2;
-          this.context.fillRect(i * 2, height - y, 2, y);
-        }
-
-        this.context.fillStyle = "#99044f";
-        for (var _i = 0; _i < 512; ++_i) {
-          var _y = this.domain[_i] * 2 - height / 2;
-          this.context.fillRect(_i * 2, height / 2, 2, _y);
-        }
+        // for (let i = 0; i < 512; ++i) {
+        //   let y = (this.frequency[i] - this.noise[i]) * 2;
+        //   this.context.fillRect(i * 2, height - y, 2, y);
+        // }
+        //
+        // this.context.fillStyle = "#99044f";
+        // for (let i = 0; i < 512; ++i) {
+        //   let y = this.domain[i] * 2 - height / 2;
+        //   this.context.fillRect(i * 2, height / 2, 2, y);
+        // }
       }
 
       //if (this.isCalibrating) {
@@ -794,13 +761,15 @@ var Recording = function (_events) {
   }, {
     key: 'addFrequency',
     value: function addFrequency() {
-      var copyData = new Uint8Array(this.frequency.length);
-      copyData.set(this.frequency);
-      this.frequencys.push(copyData);
+      if (this.frequency[10] > 0) {
+        var copyData = new Uint8Array(this.frequency.length);
+        copyData.set(this.frequency);
+        this.frequencys.push(copyData);
 
-      var copyData2 = new Uint8Array(this.domain.length);
-      copyData2.set(this.frequency);
-      this.domains.push(copyData2);
+        var copyData2 = new Uint8Array(this.domain.length);
+        copyData2.set(this.domain);
+        this.domains.push(copyData2);
+      }
     }
   }, {
     key: 'calculateNoise',
@@ -816,14 +785,14 @@ var Recording = function (_events) {
       Array.from(this.frequencys, function (frequency) {
         if (frequency[0] > -150) {
           count++;
-          for (var _i2 = 0; _i2 < frequency.length; _i2++) {
-            sum[_i2] += frequency[_i2];
+          for (var _i = 0; _i < frequency.length; _i++) {
+            sum[_i] += frequency[_i];
           }
         }
       });
 
-      for (var _i3 = 0; _i3 < this.noise.length; _i3++) {
-        this.noise[_i3] = sum[_i3] / count;
+      for (var _i2 = 0; _i2 < this.noise.length; _i2++) {
+        this.noise[_i2] = sum[_i2] / count;
       }
 
       this.domains = [];
@@ -867,6 +836,10 @@ var _velocityAnimate = __webpack_require__(46);
 
 var _velocityAnimate2 = _interopRequireDefault(_velocityAnimate);
 
+var _lodash = __webpack_require__(340);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -891,6 +864,15 @@ var Generating = function (_events) {
     _this.wave = _this.$.querySelector('.wave');
     _this.waveContext = _this.wave.getContext("2d");
     _this.operation = 'destination-over';
+
+    _this.$mPeak = _this.$.querySelector('.mPeak');
+    _this.$wPeak = _this.$.querySelector('.wPeak');
+    _this.$mLength = _this.$.querySelector('.mLength');
+    _this.$wLength = _this.$.querySelector('.wLength');
+    _this.$similarity = _this.$.querySelector('.similarity');
+    _this.$passion = _this.$.querySelector('.passion');
+    _this.$matured = _this.$.querySelector('.matured');
+    _this.$purgent = _this.$.querySelector('.purgent');
 
     _this.initialize();
     return _this;
@@ -922,16 +904,41 @@ var Generating = function (_events) {
       for (var i = 0; i < this.recording1.graph.length; i++) {
         this.waveContext.fillStyle = "#00bafd"; // : '#ff00fc';
         this.waveContext.shadowColor = "#00bafd";
-        this.waveContext.fillRect(0 + 6 * i, 200, 3, this.recording1.graph[i]);
-        this.waveContext.fillRect(0 + 6 * i, 200, 3, -this.recording1.graph[i]);
+        this.waveContext.fillRect(3 * i, 200, 1, this.recording1.graph[i]);
+        this.waveContext.fillRect(3 * i, 200, 1, -this.recording1.graph[i]);
       }
 
       for (var _i = 0; _i < this.recording2.graph.length; _i++) {
         this.waveContext.fillStyle = "#ff00fc";
         this.waveContext.shadowColor = "#ff00fc";
-        this.waveContext.fillRect(3 + 6 * _i, 200, 3, this.recording2.graph[_i]);
-        this.waveContext.fillRect(3 + 6 * _i, 200, 3, -this.recording2.graph[_i]);
+        this.waveContext.fillRect(3 * _i, 200, 1, this.recording2.graph[_i]);
+        this.waveContext.fillRect(3 * _i, 200, 1, -this.recording2.graph[_i]);
       }
+    }
+  }, {
+    key: 'analysis',
+    value: function analysis() {
+
+      var mPeak = Generating.getPeak(this.recording1.graph);
+      var wPeak = Generating.getPeak(this.recording1.graph);
+      var mLength = Generating.getHalfMaximumFrames(this.recording1.graph);
+      var wLength = Generating.getHalfMaximumFrames(this.recording2.graph);
+      var similarity = Generating.getSimilarity(this.recording1.graph, this.recording2.graph);
+
+      this.passion = Generating.getPassion(mPeak + wPeak);
+      this.matured = Generating.getMatured(mLength + wLength);
+      this.purgent = Generating.getPurgent(similarity);
+
+      console.log(mPeak + ',' + wPeak + ',' + mLength + ',' + wLength + ',' + similarity + ',' + this.passion + ',' + this.matured + ',' + this.purgent);
+
+      this.$mPeak.innerText = mPeak;
+      this.$wPeak.innerText = wPeak;
+      this.$mLength.innerText = mLength;
+      this.$wLength.innerText = wLength;
+      this.$similarity.innerText = similarity;
+      this.$passion.innerText = this.passion;
+      this.$matured.innerText = this.matured;
+      this.$purgent.innerText = this.purgent;
     }
   }, {
     key: 'show',
@@ -939,6 +946,7 @@ var Generating = function (_events) {
       var _this2 = this;
 
       this.drawWave();
+      this.analysis();
 
       (0, _velocityAnimate2.default)(this.$, {
         opacity: [1, 0]
@@ -992,6 +1000,75 @@ var Generating = function (_events) {
           _this3.emit('hidden');
         }
       });
+    }
+  }], [{
+    key: 'getPeak',
+    value: function getPeak(graph) {
+      return _lodash2.default.max(graph);
+    }
+  }, {
+    key: 'getHalfMaximumFrames',
+    value: function getHalfMaximumFrames(graph) {
+      var count = 0;
+      var max = _lodash2.default.max(graph);
+      _lodash2.default.each(graph, function (value) {
+        if (value > max / 2) count++;
+      });
+      return count;
+    }
+  }, {
+    key: 'getSimilarity',
+    value: function getSimilarity(graph1, graph2) {
+      var sum = 0;
+      for (var i = 0; i < 180; i++) {
+        var value1 = i < graph1.length ? graph1[i] : 0;
+        var value2 = i < graph2.length ? graph2[i] : 0;
+        sum += Math.pow(value1 - value2, 2);
+      }
+
+      return Math.sqrt(sum);
+    }
+  }, {
+    key: 'getPassion',
+    value: function getPassion(peak) {
+      if (peak > 210) return 10;
+      if (peak > 190) return 9;
+      if (peak > 170) return 8;
+      if (peak > 150) return 7;
+      if (peak > 140) return 6;
+      if (peak > 130) return 5;
+      if (peak > 120) return 4;
+      if (peak > 110) return 3;
+      if (peak > 90) return 2;
+      return 1;
+    }
+  }, {
+    key: 'getMatured',
+    value: function getMatured(length) {
+      if (length > 150) return 10;
+      if (length > 120) return 9;
+      if (length > 100) return 8;
+      if (length > 80) return 7;
+      if (length > 60) return 6;
+      if (length > 55) return 5;
+      if (length > 50) return 4;
+      if (length > 45) return 3;
+      if (length > 40) return 2;
+      return 1;
+    }
+  }, {
+    key: 'getPurgent',
+    value: function getPurgent(similarity) {
+      if (similarity < 60) return 10;
+      if (similarity < 90) return 9;
+      if (similarity < 120) return 8;
+      if (similarity < 140) return 7;
+      if (similarity < 160) return 6;
+      if (similarity < 200) return 5;
+      if (similarity < 240) return 4;
+      if (similarity < 360) return 3;
+      if (similarity < 480) return 2;
+      return 1;
     }
   }]);
 
