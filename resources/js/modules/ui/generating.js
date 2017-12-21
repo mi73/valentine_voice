@@ -67,7 +67,7 @@ export default class Generating extends events {
   analysis() {
 
     const mPeak = Generating.getPeak(this.recording1.graph);
-    const wPeak = Generating.getPeak(this.recording1.graph);
+    const wPeak = Generating.getPeak(this.recording2.graph);
     const mLength = Generating.getHalfMaximumFrames(this.recording1.graph);
     const wLength = Generating.getHalfMaximumFrames(this.recording2.graph);
     const similarity = Generating.getSimilarity(this.recording1.graph, this.recording2.graph);

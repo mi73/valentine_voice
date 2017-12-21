@@ -920,7 +920,7 @@ var Generating = function (_events) {
     value: function analysis() {
 
       var mPeak = Generating.getPeak(this.recording1.graph);
-      var wPeak = Generating.getPeak(this.recording1.graph);
+      var wPeak = Generating.getPeak(this.recording2.graph);
       var mLength = Generating.getHalfMaximumFrames(this.recording1.graph);
       var wLength = Generating.getHalfMaximumFrames(this.recording2.graph);
       var similarity = Generating.getSimilarity(this.recording1.graph, this.recording2.graph);
