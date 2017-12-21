@@ -96,7 +96,7 @@ export default class Generating extends events {
     let count = 0;
     const max = _.max(graph);
     _.each(graph, (value) => {
-      if (value > max / 2) count++;
+      if (value > max * 0.6) count++;
     });
     return count;
   }

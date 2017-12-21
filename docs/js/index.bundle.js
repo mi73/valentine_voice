@@ -1012,7 +1012,7 @@ var Generating = function (_events) {
       var count = 0;
       var max = _lodash2.default.max(graph);
       _lodash2.default.each(graph, function (value) {
-        if (value > max / 2) count++;
+        if (value > max * 0.6) count++;
       });
       return count;
     }
